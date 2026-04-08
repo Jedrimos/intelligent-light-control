@@ -55,7 +55,34 @@
 
 ---
 
-## v1.2.0 – Freie Szenen-Liste mit eigenen Auslösern
+## v1.2.0 – Direktsteuerung ohne HA-Szenen (Sensor-Light Modus)
+
+Inspiration: [Blackshome Sensor Light Blueprint](https://gist.github.com/Blackshome/6edfec0ff6a25c5da0d07b88dc908238)
+
+Ziel: Eine Zone soll vollständig ohne HA-Szenen-Entitäten funktionieren.
+Statt `scene.turn_on` ruft der Controller direkt `light.turn_on` mit konfigurierten Parametern auf.
+
+- [ ] **Helligkeit + Farbtemperatur pro Zone** (direkte `light.turn_on` Parameter)
+  - Standard-Helligkeit bei Bewegung (1–100 %)
+  - Standard-Farbtemperatur in Kelvin (2000–8000 K, optional)
+  - RGB-Farbe (optional, für Farblampen)
+- [ ] **Nachtmodus** – separates Lichtprofil ab Sonnenuntergang oder konfigurierter Uhrzeit
+  - Nacht-Helligkeit (z. B. 20 %)
+  - Nacht-Farbtemperatur (z. B. 2200 K, warm)
+  - Nacht-Triggerzeit oder `sun.sun below_horizon`
+- [ ] **"Dim vor Ausschalten"** – kurz vor dem Ausschalten auf konfigurierten Wert dimmen
+  - Dim-Helligkeit (z. B. 10 %)
+  - Dim-Dauer (z. B. 5 Sekunden), dann Ausschalten
+  - Optisch als Warnung: „Licht geht gleich aus"
+- [ ] **Lux-Sensor als Aktivierungsbedingung**
+  - Zone schaltet nur ein wenn Umgebungshelligkeit < X Lux
+  - Hysterese: einschalten unter X lx, ausschalten erst wenn > Y lx
+- [ ] **Wochentag-Filter** – Zone nur an bestimmten Tagen aktiv (Mo–So Auswahl)
+- [ ] Config-Flow: neues optionales Tab „Lichtprofile" für diese Einstellungen
+
+---
+
+## v1.3.0 – Freie Szenen-Liste mit eigenen Auslösern
 - [ ] **Beliebig viele Szenen pro Zone** – statt 4 fester Slots (Morgen/Tag/Abend/Nacht) eine dynamische Liste
 - [ ] Jede Szene bekommt einen eigenen Auslöser:
   - Uhrzeit (von–bis)
@@ -68,7 +95,7 @@
 
 ---
 
-## v1.3.0 – Taster-Erweiterungen
+## v1.4.0 – Taster-Erweiterungen
 - [ ] **Langer Druck**: Dimmen (heller / dunkler)
 - [ ] **ZHA / deCONZ / Z2M Event-Entitäten** als Taster-Quelle
   - Unterstützung für Zigbee-Taster (IKEA, Philips Hue, Aqara, Sonoff, etc.)
@@ -85,7 +112,9 @@
 
 ---
 
-## v1.6.0 – Lux-Sensor & Wetterintegration
+## v1.6.0 – Lux-Sensor & Wetterintegration (erweitert)
+
+> Hinweis: Lux-Basis-Unterstützung wird bereits in v1.2.0 implementiert; diese Version ergänzt komplexere Wetterintegration.
 - [ ] **Lux-Sensor**: Licht nur einschalten wenn Umgebungshelligkeit unter Schwellwert
   - Verhindert unnötiges Einschalten bei hellem Tageslicht
   - Konfigurierbar pro Zone (Küche: 100 lx, Wohnzimmer: 50 lx)
