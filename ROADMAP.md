@@ -39,9 +39,16 @@
 ---
 
 ## v1.1.0 – Frontend-Panel
-- [ ] Custom Lovelace Panel
-  - Übersicht aller Zonen mit Statusanzeige und Echtzeit-Vorschau
-  - Inline-Steuerung (Ein/Aus, Modus, Szene, Helligkeit)
+- [x] Custom Lovelace Panel (Sidebar)
+  - Übersicht aller Zonen als Karten-Grid mit Echtzeit-Status
+  - Statusbadge (Auto an/aus, Manuell an/aus, Blockiert, Deaktiviert)
+  - Indikatoren: Licht an/aus, Bewegung, Präsenz
+  - Aktive Szene anzeigen
+  - Direktsteuerung: An / Aus / Toggle pro Zone
+  - Modus-Chips: Auto / Manuell / Aus pro Zone
+  - Systemmodus-Selector im Header
+  - Live-Updates über HA WebSocket (hass-Property)
+- [ ] Erweiterte Panel-Features (nächste Iteration):
   - Zonen-Konfiguration direkt im Panel (kein Umweg über Services)
   - Tageszeit-Zeitleiste: zeigt welche Szene wann aktiv wird
   - Letzte Aktivität pro Zone (wann zuletzt Bewegung, welche Szene)
