@@ -267,7 +267,18 @@ class ZoneController:
         if new_state.state == "on":
             self.hass.async_create_task(self._on_motion_detected())
         elif new_state.state == "off":
-            self._start_no_motion_timer()
+            # Bug fix: only start no-motion timer if NO other motion sensor is still active.
+            # With multiple sensors, one going off must not override the others.
+            if not self._any_motion_sensor_active():
+                self._start_no_motion_timer()
+
+    def _any_motion_sensor_active(self) -> bool:
+        """Return True if at least one motion sensor is currently reporting 'on'."""
+        for sensor_id in self._config.get(CONF_MOTION_SENSORS, []):
+            state = self.hass.states.get(sensor_id)
+            if state and state.state == "on":
+                return True
+        return False
 
     async def _on_motion_detected(self) -> None:
         if self._mode == MODE_OFF:
@@ -315,13 +326,19 @@ class ZoneController:
         if not self._no_motion_blocker_ok():
             return
 
-        # Presence check: if someone is still in the room (TV on, mmWave, etc.) → postpone
+        # Presence check: if someone is still in the room (TV on, mmWave, etc.) → postpone.
+        # Use at least 30 s for the re-check interval to avoid a busy-loop when
+        # no_motion_wait is 0 or very small.
         if self._is_presence_detected():
             _LOGGER.debug(
                 "[%s] Presence still detected (TV/sensor) – postponing no-motion action",
                 self.zone_id,
             )
-            self._start_no_motion_timer()
+            recheck_wait = max(self.no_motion_wait, 30)
+            self._no_motion_cancel = self.hass.loop.call_later(
+                recheck_wait,
+                lambda: self.hass.async_create_task(self._on_no_motion()),
+            )
             return
 
         # Try ambient scene (time-based or sun-based)
@@ -500,28 +517,31 @@ class ZoneController:
         self._schedule_manual_override_expiry()
 
         current = self.hass.states.get(light_id)
-        if current and current.state == "on":
+        turning_off = current is not None and current.state == "on"
+
+        if turning_off:
             await self.hass.services.async_call(
                 "light", "turn_off", {"entity_id": light_id}, blocking=False
+            )
+            # Bug fix: don't re-read HA state – it hasn't updated yet (blocking=False).
+            # Instead check all OTHER lights to decide if the zone is still on.
+            all_lights = list(self._config.get(CONF_LIGHTS, [])) + list(
+                self._config.get(CONF_SERIES_LIGHTS, [])
+            )
+            self._lights_on = any(
+                (s := self.hass.states.get(lid)) is not None and s.state == "on"
+                for lid in all_lights
+                if lid != light_id  # exclude the one we just turned off
             )
         else:
             await self.hass.services.async_call(
                 "light", "turn_on", {"entity_id": light_id}, blocking=False
             )
+            # At least one light is now on
+            self._lights_on = True
 
-        # Reflect actual light states back into zone
-        self._update_lights_on_state()
+        self._active_scene = None
         self.coordinator.async_update_listeners()
-
-    def _update_lights_on_state(self) -> None:
-        """Sync _lights_on with real HA light states (used after Serienschalter actions)."""
-        all_lights = list(self._config.get(CONF_LIGHTS, [])) + list(
-            self._config.get(CONF_SERIES_LIGHTS, [])
-        )
-        self._lights_on = any(
-            (s := self.hass.states.get(lid)) is not None and s.state == "on"
-            for lid in all_lights
-        )
 
     # ------------------------------------------------------------------
     # Manual override timer
