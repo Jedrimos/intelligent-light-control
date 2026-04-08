@@ -1,0 +1,442 @@
+add_zone:
+  name: Zone hinzufügen
+  description: Fügt eine neue Beleuchtungszone hinzu.
+  fields:
+    zone_id:
+      name: Zonen-ID
+      description: Eindeutige ID der Zone (optional, wird automatisch generiert wenn leer).
+      required: false
+      example: "wohnzimmer"
+      selector:
+        text:
+    name:
+      name: Name
+      description: Anzeigename der Zone.
+      required: true
+      example: "Wohnzimmer"
+      selector:
+        text:
+    lights:
+      name: Lichter
+      description: Liste der Licht-Entitäten in dieser Zone.
+      required: true
+      example: ["light.wohnzimmer_decke", "light.wohnzimmer_stehlampe"]
+      selector:
+        entity:
+          domain: light
+          multiple: true
+    motion_sensors:
+      name: Bewegungssensoren
+      description: Bewegungssensoren, die die Zone steuern.
+      required: false
+      example: ["binary_sensor.bewegung_wohnzimmer"]
+      selector:
+        entity:
+          domain: binary_sensor
+          multiple: true
+    no_motion_wait:
+      name: Wartezeit
+      description: Sekunden nach der letzten Bewegung, bevor das Licht ausgeht.
+      required: false
+      default: 120
+      example: 120
+      selector:
+        number:
+          min: 0
+          max: 3600
+          unit_of_measurement: s
+    sun_elevation_check:
+      name: Sonnenhöhen-Check
+      description: Automation läuft nur wenn Sonnenhöhe <= diesem Wert (in Grad). Leer = immer.
+      required: false
+      example: 3.0
+      selector:
+        number:
+          min: -90
+          max: 90
+          unit_of_measurement: °
+    automation_blocker:
+      name: Automation-Blocker
+      description: Entität, die die gesamte Automation blockiert (optional).
+      required: false
+      selector:
+        entity:
+    automation_blocker_state:
+      name: Blocker-Zustand
+      description: Gewünschter Zustand des Blockers ("on" oder "off").
+      required: false
+      default: "off"
+      example: "on"
+      selector:
+        select:
+          options:
+            - "on"
+            - "off"
+    no_motion_blocker:
+      name: Kein-Bewegung-Blocker
+      description: Entität, die die Kein-Bewegung-Sequenz blockiert (optional).
+      required: false
+      selector:
+        entity:
+    no_motion_blocker_state:
+      name: Kein-Bewegung-Blocker-Zustand
+      description: Gewünschter Zustand des Kein-Bewegung-Blockers.
+      required: false
+      default: "off"
+      example: "on"
+      selector:
+        select:
+          options:
+            - "on"
+            - "off"
+    scene_morning:
+      name: Szene Morgen
+      description: Szene für den Morgen (optional).
+      required: false
+      selector:
+        entity:
+          domain: scene
+    time_scene_morning:
+      name: Startzeit Morgen
+      description: Ab dieser Uhrzeit gilt die Morgen-Szene.
+      required: false
+      default: "06:00:00"
+      selector:
+        time:
+    scene_day:
+      name: Szene Tag
+      description: Szene für den Tag (optional).
+      required: false
+      selector:
+        entity:
+          domain: scene
+    time_scene_day:
+      name: Startzeit Tag
+      description: Ab dieser Uhrzeit gilt die Tages-Szene.
+      required: false
+      default: "09:00:00"
+      selector:
+        time:
+    scene_evening:
+      name: Szene Abend
+      description: Szene für den Abend (optional).
+      required: false
+      selector:
+        entity:
+          domain: scene
+    time_scene_evening:
+      name: Startzeit Abend
+      description: Ab dieser Uhrzeit gilt die Abend-Szene.
+      required: false
+      default: "17:00:00"
+      selector:
+        time:
+    scene_night:
+      name: Szene Nacht
+      description: Szene für die Nacht (optional).
+      required: false
+      selector:
+        entity:
+          domain: scene
+    time_scene_night:
+      name: Startzeit Nacht
+      description: Ab dieser Uhrzeit gilt die Nacht-Szene.
+      required: false
+      default: "22:00:00"
+      selector:
+        time:
+    scene_ambient:
+      name: Ambient-Szene
+      description: Szene die bei keiner Bewegung (innerhalb des Ambient-Zeitfensters) aktiviert wird.
+      required: false
+      selector:
+        entity:
+          domain: scene
+    time_scene_ambient_start:
+      name: Ambient-Zeitfenster Start
+      description: Startzeit des Ambient-Zeitfensters.
+      required: false
+      default: "00:00:00"
+      selector:
+        time:
+    time_scene_ambient_end:
+      name: Ambient-Zeitfenster Ende
+      description: Endzeit des Ambient-Zeitfensters.
+      required: false
+      default: "00:00:00"
+      selector:
+        time:
+    scene_no_motion:
+      name: Standard Kein-Bewegung-Szene
+      description: Szene die bei keiner Bewegung aktiviert wird (außerhalb des Ambient-Fensters).
+      required: false
+      selector:
+        entity:
+          domain: scene
+    switches:
+      name: Schalter
+      description: Physische Lichtschalter (Toggle-Schalter), die die Zone steuern.
+      required: false
+      example: ["input_boolean.schalter_wohnzimmer"]
+      selector:
+        entity:
+          multiple: true
+    buttons:
+      name: Taster
+      description: Taster / Momentschalter (input_button oder event-Entitäten), die die Zone umschalten.
+      required: false
+      example: ["input_button.taster_wohnzimmer"]
+      selector:
+        entity:
+          domain:
+            - input_button
+            - event
+          multiple: true
+    manual_override_duration:
+      name: Manueller Override Dauer
+      description: Sekunden bis der manuelle Override automatisch endet. 0 = unbegrenzt.
+      required: false
+      default: 3600
+      selector:
+        number:
+          min: 0
+          max: 86400
+          unit_of_measurement: s
+
+remove_zone:
+  name: Zone entfernen
+  description: Entfernt eine Beleuchtungszone.
+  fields:
+    zone_id:
+      name: Zonen-ID
+      description: ID der zu entfernenden Zone.
+      required: true
+      example: "wohnzimmer"
+      selector:
+        text:
+
+update_zone:
+  name: Zone aktualisieren
+  description: Aktualisiert die Konfiguration einer bestehenden Zone.
+  fields:
+    zone_id:
+      name: Zonen-ID
+      description: ID der zu aktualisierenden Zone.
+      required: true
+      example: "wohnzimmer"
+      selector:
+        text:
+    name:
+      name: Name
+      required: false
+      selector:
+        text:
+    lights:
+      name: Lichter
+      required: false
+      selector:
+        entity:
+          domain: light
+          multiple: true
+    motion_sensors:
+      name: Bewegungssensoren
+      required: false
+      selector:
+        entity:
+          domain: binary_sensor
+          multiple: true
+    no_motion_wait:
+      name: Wartezeit
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 3600
+          unit_of_measurement: s
+    sun_elevation_check:
+      name: Sonnenhöhen-Check
+      required: false
+      selector:
+        number:
+          min: -90
+          max: 90
+          unit_of_measurement: °
+    scene_morning:
+      name: Szene Morgen
+      required: false
+      selector:
+        entity:
+          domain: scene
+    time_scene_morning:
+      name: Startzeit Morgen
+      required: false
+      selector:
+        time:
+    scene_day:
+      name: Szene Tag
+      required: false
+      selector:
+        entity:
+          domain: scene
+    time_scene_day:
+      name: Startzeit Tag
+      required: false
+      selector:
+        time:
+    scene_evening:
+      name: Szene Abend
+      required: false
+      selector:
+        entity:
+          domain: scene
+    time_scene_evening:
+      name: Startzeit Abend
+      required: false
+      selector:
+        time:
+    scene_night:
+      name: Szene Nacht
+      required: false
+      selector:
+        entity:
+          domain: scene
+    time_scene_night:
+      name: Startzeit Nacht
+      required: false
+      selector:
+        time:
+    scene_ambient:
+      name: Ambient-Szene
+      required: false
+      selector:
+        entity:
+          domain: scene
+    time_scene_ambient_start:
+      name: Ambient-Zeitfenster Start
+      required: false
+      selector:
+        time:
+    time_scene_ambient_end:
+      name: Ambient-Zeitfenster Ende
+      required: false
+      selector:
+        time:
+    scene_no_motion:
+      name: Standard Kein-Bewegung-Szene
+      required: false
+      selector:
+        entity:
+          domain: scene
+    switches:
+      name: Schalter
+      required: false
+      selector:
+        entity:
+          multiple: true
+    buttons:
+      name: Taster
+      required: false
+      selector:
+        entity:
+          domain:
+            - input_button
+            - event
+          multiple: true
+    manual_override_duration:
+      name: Manueller Override Dauer
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 86400
+          unit_of_measurement: s
+
+set_zone_mode:
+  name: Zonenmodus setzen
+  description: Setzt den Betriebsmodus einer Zone.
+  fields:
+    zone_id:
+      name: Zonen-ID
+      required: true
+      example: "wohnzimmer"
+      selector:
+        text:
+    mode:
+      name: Modus
+      description: "auto = Bewegungssteuerung, manual = manuell, off = deaktiviert"
+      required: true
+      selector:
+        select:
+          options:
+            - "auto"
+            - "manual"
+            - "off"
+
+turn_on_zone:
+  name: Zone einschalten
+  description: Schaltet die Lichter einer Zone ein (wechselt in manuellen Modus).
+  fields:
+    zone_id:
+      name: Zonen-ID
+      required: true
+      selector:
+        text:
+
+turn_off_zone:
+  name: Zone ausschalten
+  description: Schaltet die Lichter einer Zone aus (wechselt in manuellen Modus).
+  fields:
+    zone_id:
+      name: Zonen-ID
+      required: true
+      selector:
+        text:
+
+toggle_zone:
+  name: Zone umschalten
+  description: Schaltet die Lichter einer Zone um.
+  fields:
+    zone_id:
+      name: Zonen-ID
+      required: true
+      selector:
+        text:
+
+activate_scene:
+  name: Szene aktivieren
+  description: Aktiviert eine bestimmte Szene in einer Zone (wechselt in manuellen Modus).
+  fields:
+    zone_id:
+      name: Zonen-ID
+      required: true
+      selector:
+        text:
+    scene_id:
+      name: Szenen-ID
+      required: true
+      example: "scene.wohnzimmer_film"
+      selector:
+        entity:
+          domain: scene
+
+set_system_mode:
+  name: Systemmodus setzen
+  description: Setzt den globalen Betriebsmodus der gesamten Integration.
+  fields:
+    mode:
+      name: Modus
+      required: true
+      selector:
+        select:
+          options:
+            - "auto"
+            - "manual"
+            - "off"
+
+reload:
+  name: Neu laden
+  description: Lädt die Integration neu.
+
+export_config:
+  name: Konfiguration exportieren
+  description: Exportiert die aktuelle Konfiguration aller Zonen als persistent_notification.

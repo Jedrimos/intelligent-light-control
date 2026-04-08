@@ -1,0 +1,76 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Set up Intelligent Light Control",
+        "description": "Enter a name for this instance. Zones are managed via services afterwards.",
+        "data": {
+          "name": "Name"
+        }
+      }
+    },
+    "abort": {
+      "already_configured": "This instance is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "ilczonestatussensor": {
+        "state": {
+          "auto_on": "Auto – on",
+          "auto_off": "Auto – off",
+          "manual_on": "Manual – on",
+          "manual_off": "Manual – off",
+          "blocked": "Blocked",
+          "disabled": "Disabled"
+        }
+      }
+    }
+  },
+  "services": {
+    "add_zone": {
+      "name": "Add zone",
+      "description": "Adds a new lighting zone."
+    },
+    "remove_zone": {
+      "name": "Remove zone",
+      "description": "Removes a lighting zone."
+    },
+    "update_zone": {
+      "name": "Update zone",
+      "description": "Updates the configuration of a zone."
+    },
+    "set_zone_mode": {
+      "name": "Set zone mode",
+      "description": "Sets the operating mode of a zone."
+    },
+    "turn_on_zone": {
+      "name": "Turn on zone",
+      "description": "Turns on the lights in a zone."
+    },
+    "turn_off_zone": {
+      "name": "Turn off zone",
+      "description": "Turns off the lights in a zone."
+    },
+    "toggle_zone": {
+      "name": "Toggle zone",
+      "description": "Toggles the lights in a zone."
+    },
+    "activate_scene": {
+      "name": "Activate scene",
+      "description": "Activates a scene in a zone."
+    },
+    "set_system_mode": {
+      "name": "Set system mode",
+      "description": "Sets the global operating mode."
+    },
+    "reload": {
+      "name": "Reload",
+      "description": "Reloads the integration."
+    },
+    "export_config": {
+      "name": "Export config",
+      "description": "Exports the configuration of all zones."
+    }
+  }
+}
