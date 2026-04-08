@@ -24,10 +24,17 @@
 - [x] Übersetzungen DE + EN
 - [x] HACS-kompatibel
 
+### Bereits implementiert (ehemals v1.1 / v1.2)
+- [x] **Übergangszeiten (Transition)** – sanftes Ein-/Ausblenden beim Szenenwechsel
+- [x] **Szenen-Favoriten** – bis zu 5 Favoriten pro Zone, per Service oder Taster abrufbar
+- [x] **Multi-Tap Taster** – Einfach-/Doppel-/Dreifachklick mit konfigurierbaren Aktionen (toggle, next_scene, favorite, all_off)
+
 ### Bugfixes (bereits gepatcht)
 - [x] Multi-Sensor-Bug: Timer startet jetzt erst wenn ALLE Sensoren inaktiv sind
 - [x] Series-Light State-Timing: kein Race Condition nach `blocking=False`
 - [x] Presence-Recheck: kein Busy-Loop bei `no_motion_wait=0`
+- [x] Stale-Data-Bug: `coordinator.data`-Snapshot wurde nie aktualisiert → Entities lasen immer Initialzustand; behoben durch `async_notify_zones_updated()` + `_compute_snapshot()`
+- [x] Fehlender Timer-Cancel: `async_turn_on/off/activate_scene` cancelten den No-Motion-Timer nicht
 
 ---
 
@@ -38,15 +45,23 @@
   - Zonen-Konfiguration direkt im Panel (kein Umweg über Services)
   - Tageszeit-Zeitleiste: zeigt welche Szene wann aktiv wird
   - Letzte Aktivität pro Zone (wann zuletzt Bewegung, welche Szene)
-- [ ] **Übergangszeiten (Transition)** pro Szene – sanftes Ein-/Ausblenden (in ms) statt hartem Umschalten
-- [ ] **Szenen-Favoriten** – bis zu 5 Favoriten pro Zone speicherbar, per Taster direkt abrufbar
 
 ---
 
-## v1.2.0 – Taster-Erweiterungen (Multi-Tap & Long-Press)
-- [ ] **Einfachklick**: Ein/Aus wie bisher
-- [ ] **Doppelklick**: nächste Tageszeit-Szene (Morgen → Tag → Abend → Nacht → ...)
-- [ ] **Dreifachklick**: direkt zu konfigurierter Lieblingsszene springen
+## v1.2.0 – Freie Szenen-Liste mit eigenen Auslösern
+- [ ] **Beliebig viele Szenen pro Zone** – statt 4 fester Slots (Morgen/Tag/Abend/Nacht) eine dynamische Liste
+- [ ] Jede Szene bekommt einen eigenen Auslöser:
+  - Uhrzeit (von–bis)
+  - Sonnenhöhe (Elevation-Bereich)
+  - Sonnenauf-/-untergang (± Offset in Minuten)
+  - Wochentag-Filter (z. B. nur Wochenende)
+  - Kombination mehrerer Bedingungen (AND/OR)
+- [ ] Drag-and-Drop Reihenfolge im Frontend-Panel
+- [ ] Architektur-Änderung: `_config["scenes"]` wird eine Liste von `{scene, trigger}` Dicts statt fixer Schlüssel
+
+---
+
+## v1.3.0 – Taster-Erweiterungen
 - [ ] **Langer Druck**: Dimmen (heller / dunkler)
 - [ ] **ZHA / deCONZ / Z2M Event-Entitäten** als Taster-Quelle
   - Unterstützung für Zigbee-Taster (IKEA, Philips Hue, Aqara, Sonoff, etc.)
@@ -54,7 +69,7 @@
 
 ---
 
-## v1.3.0 – Circadian Lighting (Biologisch korrektes Licht)
+## v1.5.0 – Circadian Lighting (Biologisch korrektes Licht)
 - [ ] Automatische Farbtemperatur nach Tageszeit (warm morgens/abends, kalt mittags)
 - [ ] Automatische Helligkeit nach Tageszeit (sanftes Aufwachen, volle Helligkeit tagsüber)
 - [ ] Sonnenposition als Basis (keine festen Uhrzeiten nötig)
@@ -63,7 +78,7 @@
 
 ---
 
-## v1.4.0 – Lux-Sensor & Wetterintegration
+## v1.6.0 – Lux-Sensor & Wetterintegration
 - [ ] **Lux-Sensor**: Licht nur einschalten wenn Umgebungshelligkeit unter Schwellwert
   - Verhindert unnötiges Einschalten bei hellem Tageslicht
   - Konfigurierbar pro Zone (Küche: 100 lx, Wohnzimmer: 50 lx)
@@ -75,7 +90,7 @@
 
 ---
 
-## v1.5.0 – Zonengruppen & Raumverknüpfung
+## v1.7.0 – Zonengruppen & Raumverknüpfung
 - [ ] **Zonengruppen**: Mehrere Zonen gemeinsam steuern (z. B. „Erdgeschoss", „Alle Schlafen")
   - Services: `add_group`, `remove_group`, `set_group_mode`
   - Gruppen-Szenen: koordinierte Szenen in allen Zonen der Gruppe
@@ -87,7 +102,7 @@
 
 ---
 
-## v1.6.0 – Präsenz & Anwesenheit
+## v1.8.0 – Präsenz & Anwesenheit
 - [ ] **Personen-Entities als Trigger**: Zone bleibt aktiv solange Person erkannt
 - [ ] **Auto-Abwesenheit**: alle Zonen ausschalten wenn niemand mehr zuhause
   - Konfigurierbare Verzögerung
@@ -99,7 +114,7 @@
 
 ---
 
-## v1.7.0 – Medien-Integration
+## v1.9.0 – Medien-Integration
 - [ ] **TV-Dimmen**: Licht dimmt automatisch wenn Wiedergabe startet, kehrt zurück beim Pausieren/Stoppen
   - Konfigurierbar: welcher Player → welche Zone → auf welche Helligkeit/Szene
 - [ ] **Kino-Modus**: Wohnzimmer auf Kino-Szene + Flur auf 10% in einem Befehl
@@ -107,7 +122,7 @@
 
 ---
 
-## v1.8.0 – Urlaub & Sicherheit
+## v1.10.0 – Urlaub & Sicherheit
 - [ ] **Anwesenheitssimulation**: Lichter gehen zu zufälligen Zeiten an/aus (basierend auf historischen Nutzungsmustern)
 - [ ] **Sicherheits-Blitz**: alle Lichter blinken bei Alarm-Trigger (Einbruch, Feuermelder)
   - Konfigurierbar: Trigger-Entity + Blitzmuster
@@ -117,7 +132,7 @@
 
 ---
 
-## v1.9.0 – Energie & Statistiken
+## v1.11.0 – Energie & Statistiken
 - [ ] **Energie-Tracking pro Zone**: Stunden Licht an, geschätzte kWh
 - [ ] **Tagesstatistik**: wann war welche Zone wie lange aktiv
 - [ ] **Solar-Optimierung**: bei Solar-Überschuss bestimmte Zonen automatisch aktivieren
