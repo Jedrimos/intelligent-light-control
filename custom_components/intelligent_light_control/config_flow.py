@@ -59,6 +59,23 @@ from .const import (
     TAP_ACTIONS,
 )
 
+# All scene-related keys – cleared when user chooses "no scenes"
+_SCENE_KEYS = [
+    CONF_SCENE_MORNING, CONF_SCENE_DAY, CONF_SCENE_EVENING, CONF_SCENE_NIGHT,
+    CONF_SCENE_AMBIENT, CONF_SCENE_NO_MOTION,
+    CONF_TIME_MORNING, CONF_TIME_DAY, CONF_TIME_EVENING, CONF_TIME_NIGHT,
+    CONF_TIME_AMBIENT_START, CONF_TIME_AMBIENT_END,
+    CONF_FAVORITES, CONF_AMBIENT_TRIGGER, CONF_SUN_ELEVATION,
+]
+
+def _zone_has_scenes(zone_config: dict) -> bool:
+    """Return True if any scene is configured in this zone."""
+    scene_entity_keys = [
+        CONF_SCENE_MORNING, CONF_SCENE_DAY, CONF_SCENE_EVENING,
+        CONF_SCENE_NIGHT, CONF_SCENE_AMBIENT, CONF_SCENE_NO_MOTION,
+    ]
+    return any(zone_config.get(k) for k in scene_entity_keys)
+
 
 # ---------------------------------------------------------------------------
 # Initial setup flow
@@ -173,13 +190,17 @@ class ILCOptionsFlow(config_entries.OptionsFlow):
             elif not user_input.get(CONF_LIGHTS):
                 errors[CONF_LIGHTS] = "lights_required"
             else:
+                use_scenes: bool = user_input.pop("use_scenes", False)
                 self._zone_data = dict(user_input)
                 self._zone_data[CONF_ZONE_ID] = (
-                    user_input.get(CONF_ZONE_NAME, "zone").lower().replace(" ", "_").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue").replace("ß", "ss")[:20]
-                    + "_"
-                    + str(uuid.uuid4())[:4]
+                    user_input.get(CONF_ZONE_NAME, "zone").lower()
+                    .replace(" ", "_").replace("ä", "ae").replace("ö", "oe")
+                    .replace("ü", "ue").replace("ß", "ss")[:20]
+                    + "_" + str(uuid.uuid4())[:4]
                 )
-                return await self.async_step_add_zone_scenes()
+                if use_scenes:
+                    return await self.async_step_add_zone_scenes()
+                return await self._save_zone(self._zone_data[CONF_ZONE_ID], self._zone_data)
 
         return self.async_show_form(
             step_id="add_zone",
@@ -250,8 +271,15 @@ class ILCOptionsFlow(config_entries.OptionsFlow):
             elif not user_input.get(CONF_LIGHTS):
                 errors[CONF_LIGHTS] = "lights_required"
             else:
+                use_scenes: bool = user_input.pop("use_scenes", False)
                 self._zone_data = dict(user_input)
-                return await self.async_step_edit_zone_scenes()
+                if use_scenes:
+                    return await self.async_step_edit_zone_scenes()
+                # No scenes wanted – clear any previously saved scene keys
+                for key in _SCENE_KEYS:
+                    self._zone_data.pop(key, None)
+                self._zone_data[CONF_ZONE_ID] = self._selected_zone_id
+                return await self._save_zone(self._selected_zone_id, self._zone_data)
 
         return self.async_show_form(
             step_id="edit_zone_basic",
@@ -332,122 +360,69 @@ class ILCOptionsFlow(config_entries.OptionsFlow):
 # ---------------------------------------------------------------------------
 
 def _zone_basic_schema(existing: dict | None = None) -> vol.Schema:
-    """Schema for basic zone fields (step 1)."""
+    """Step 1 – everything except HA scene entities.
+
+    Contains motion, switches, presence, timing, ambient conditions, and
+    blockers. A ``use_scenes`` checkbox at the end controls whether the user
+    proceeds to Step 2 (HA scene entities) or saves the zone immediately.
+    """
     ex = existing or {}
+    has_scenes = _zone_has_scenes(ex)
+
+    def _ent(key: str):
+        val = ex.get(key)
+        if val:
+            return vol.Optional(key, description={"suggested_value": val})
+        return vol.Optional(key)
+
     return vol.Schema(
         {
+            # ── Basis ────────────────────────────────────────────────────
             vol.Required(CONF_ZONE_NAME, default=ex.get(CONF_ZONE_NAME, "")): selector.TextSelector(),
-            # --- Zone lights (all lights controlled by automation) ---
             vol.Required(CONF_LIGHTS, default=ex.get(CONF_LIGHTS, [])): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="light", multiple=True)
             ),
-            # --- Motion / PIR sensors ---
+            # ── Bewegung & Präsenz ───────────────────────────────────────
             vol.Optional(CONF_MOTION_SENSORS, default=ex.get(CONF_MOTION_SENSORS, [])): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="binary_sensor", multiple=True)
             ),
-            vol.Optional(
-                CONF_NO_MOTION_WAIT,
-                default=ex.get(CONF_NO_MOTION_WAIT, DEFAULT_NO_MOTION_WAIT),
-            ): selector.NumberSelector(
+            vol.Optional(CONF_NO_MOTION_WAIT, default=ex.get(CONF_NO_MOTION_WAIT, DEFAULT_NO_MOTION_WAIT)): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=0, max=3600, unit_of_measurement="s", mode=selector.NumberSelectorMode.BOX)
             ),
-            # --- Extended presence detection (TV, mmWave, etc.) ---
             vol.Optional(CONF_PRESENCE_SENSORS, default=ex.get(CONF_PRESENCE_SENSORS, [])): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="binary_sensor", multiple=True)
             ),
             vol.Optional(CONF_MEDIA_PLAYERS, default=ex.get(CONF_MEDIA_PLAYERS, [])): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="media_player", multiple=True)
             ),
-            # --- Serienschalter: switch[i] controls light[i] individually ---
-            vol.Optional(CONF_SERIES_SWITCHES, default=ex.get(CONF_SERIES_SWITCHES, [])): selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=True)
+            vol.Optional(CONF_POWER_SENSORS, default=ex.get(CONF_POWER_SENSORS, [])): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", multiple=True)
             ),
-            vol.Optional(CONF_SERIES_LIGHTS, default=ex.get(CONF_SERIES_LIGHTS, [])): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="light", multiple=True)
+            vol.Optional(CONF_POWER_THRESHOLD, default=ex.get(CONF_POWER_THRESHOLD, DEFAULT_POWER_THRESHOLD)): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=10000, unit_of_measurement="W", mode=selector.NumberSelectorMode.BOX)
             ),
-            # --- Global switches / buttons (control all zone lights) ---
+            # ── Schalter & Taster ────────────────────────────────────────
             vol.Optional(CONF_SWITCHES, default=ex.get(CONF_SWITCHES, [])): selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=True)
             ),
             vol.Optional(CONF_BUTTONS, default=ex.get(CONF_BUTTONS, [])): selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=True)
             ),
-            # --- Multi-tap configuration (for buttons) ---
             vol.Optional(CONF_MULTI_TAP_ENABLED, default=ex.get(CONF_MULTI_TAP_ENABLED, False)): selector.BooleanSelector(),
-            vol.Optional(CONF_DOUBLE_TAP_ACTION, default=ex.get(CONF_DOUBLE_TAP_ACTION, "next_scene")): selector.SelectSelector(
+            vol.Optional(CONF_DOUBLE_TAP_ACTION, default=ex.get(CONF_DOUBLE_TAP_ACTION, "toggle")): selector.SelectSelector(
                 selector.SelectSelectorConfig(options=TAP_ACTIONS, mode=selector.SelectSelectorMode.LIST, translation_key="tap_action")
             ),
-            vol.Optional(CONF_TRIPLE_TAP_ACTION, default=ex.get(CONF_TRIPLE_TAP_ACTION, "favorite_1")): selector.SelectSelector(
+            vol.Optional(CONF_TRIPLE_TAP_ACTION, default=ex.get(CONF_TRIPLE_TAP_ACTION, "next_scene")): selector.SelectSelector(
                 selector.SelectSelectorConfig(options=TAP_ACTIONS, mode=selector.SelectSelectorMode.LIST, translation_key="tap_action")
             ),
-            # --- Timing ---
-            vol.Optional(
-                CONF_TRANSITION_TIME,
-                default=ex.get(CONF_TRANSITION_TIME, DEFAULT_TRANSITION_TIME),
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(min=0, max=10, step=0.1, unit_of_measurement="s", mode=selector.NumberSelectorMode.BOX)
+            # ── Serienschalter ───────────────────────────────────────────
+            vol.Optional(CONF_SERIES_SWITCHES, default=ex.get(CONF_SERIES_SWITCHES, [])): selector.EntitySelector(
+                selector.EntitySelectorConfig(multiple=True)
             ),
-            vol.Optional(
-                CONF_MANUAL_OVERRIDE_DURATION,
-                default=ex.get(CONF_MANUAL_OVERRIDE_DURATION, DEFAULT_MANUAL_OVERRIDE_DURATION),
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(min=0, max=86400, unit_of_measurement="s", mode=selector.NumberSelectorMode.BOX)
+            vol.Optional(CONF_SERIES_LIGHTS, default=ex.get(CONF_SERIES_LIGHTS, [])): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="light", multiple=True)
             ),
-        }
-    )
-
-
-def _zone_scenes_schema(existing: dict | None = None) -> vol.Schema:
-    """Schema for zone scenes, controls, and advanced options (step 2)."""
-    ex = existing or {}
-
-    def _scene(key: str):
-        """Optional scene entity selector – pre-fills current value for edit."""
-        val = ex.get(key)
-        if val:
-            return vol.Optional(key, description={"suggested_value": val})
-        return vol.Optional(key)
-
-    def _entity(key: str):
-        """Optional single-entity selector – pre-fills current value for edit."""
-        val = ex.get(key)
-        if val:
-            return vol.Optional(key, description={"suggested_value": val})
-        return vol.Optional(key)
-
-    return vol.Schema(
-        {
-            # ---- Tageszeit-Szenen ----
-            _scene(CONF_SCENE_MORNING): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="scene")
-            ),
-            vol.Optional(CONF_TIME_MORNING, default=ex.get(CONF_TIME_MORNING, "06:00:00")): selector.TimeSelector(),
-            _scene(CONF_SCENE_DAY): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="scene")
-            ),
-            vol.Optional(CONF_TIME_DAY, default=ex.get(CONF_TIME_DAY, "09:00:00")): selector.TimeSelector(),
-            _scene(CONF_SCENE_EVENING): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="scene")
-            ),
-            vol.Optional(CONF_TIME_EVENING, default=ex.get(CONF_TIME_EVENING, "17:00:00")): selector.TimeSelector(),
-            _scene(CONF_SCENE_NIGHT): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="scene")
-            ),
-            vol.Optional(CONF_TIME_NIGHT, default=ex.get(CONF_TIME_NIGHT, "22:00:00")): selector.TimeSelector(),
-            # ---- Ambient ----
-            _scene(CONF_SCENE_AMBIENT): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="scene")
-            ),
-            vol.Optional(CONF_TIME_AMBIENT_START, default=ex.get(CONF_TIME_AMBIENT_START, "00:00:00")): selector.TimeSelector(),
-            vol.Optional(CONF_TIME_AMBIENT_END, default=ex.get(CONF_TIME_AMBIENT_END, "00:00:00")): selector.TimeSelector(),
-            _scene(CONF_SCENE_NO_MOTION): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="scene")
-            ),
-            # ---- Favoriten-Szenen (für Multi-Tap, Favorit-Service) ----
-            vol.Optional(CONF_FAVORITES, default=ex.get(CONF_FAVORITES, [])): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="scene", multiple=True)
-            ),
-            # ---- Ambient trigger mode ----
+            # ── Ambient & Sonnenstand ────────────────────────────────────
             vol.Optional(CONF_AMBIENT_TRIGGER, default=ex.get(CONF_AMBIENT_TRIGGER, AMBIENT_TRIGGER_TIME)): selector.SelectSelector(
                 selector.SelectSelectorConfig(
                     options=AMBIENT_TRIGGERS,
@@ -455,44 +430,60 @@ def _zone_scenes_schema(existing: dict | None = None) -> vol.Schema:
                     translation_key="ambient_trigger",
                 )
             ),
-            # ---- Sonnenhöhe ----
+            vol.Optional(CONF_TIME_AMBIENT_START, default=ex.get(CONF_TIME_AMBIENT_START, "00:00:00")): selector.TimeSelector(),
+            vol.Optional(CONF_TIME_AMBIENT_END, default=ex.get(CONF_TIME_AMBIENT_END, "00:00:00")): selector.TimeSelector(),
             vol.Optional(CONF_SUN_ELEVATION, description={"suggested_value": ex.get(CONF_SUN_ELEVATION)}): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=-90, max=90, unit_of_measurement="°", mode=selector.NumberSelectorMode.BOX)
             ),
-            # ---- Blocker ----
-            _entity(CONF_AUTOMATION_BLOCKER): selector.EntitySelector(
-                selector.EntitySelectorConfig()
+            # ── Blocker ──────────────────────────────────────────────────
+            _ent(CONF_AUTOMATION_BLOCKER): selector.EntitySelector(selector.EntitySelectorConfig()),
+            vol.Optional(CONF_AUTOMATION_BLOCKER_STATE, default=ex.get(CONF_AUTOMATION_BLOCKER_STATE, "on")): selector.SelectSelector(
+                selector.SelectSelectorConfig(options=["on", "off"], mode=selector.SelectSelectorMode.LIST)
             ),
-            vol.Optional(
-                CONF_AUTOMATION_BLOCKER_STATE,
-                default=ex.get(CONF_AUTOMATION_BLOCKER_STATE, "on"),
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=["on", "off"],
-                    mode=selector.SelectSelectorMode.LIST,
-                )
+            _ent(CONF_NO_MOTION_BLOCKER): selector.EntitySelector(selector.EntitySelectorConfig()),
+            vol.Optional(CONF_NO_MOTION_BLOCKER_STATE, default=ex.get(CONF_NO_MOTION_BLOCKER_STATE, "on")): selector.SelectSelector(
+                selector.SelectSelectorConfig(options=["on", "off"], mode=selector.SelectSelectorMode.LIST)
             ),
-            _entity(CONF_NO_MOTION_BLOCKER): selector.EntitySelector(
-                selector.EntitySelectorConfig()
+            # ── Timing ───────────────────────────────────────────────────
+            vol.Optional(CONF_TRANSITION_TIME, default=ex.get(CONF_TRANSITION_TIME, DEFAULT_TRANSITION_TIME)): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=10, step=0.1, unit_of_measurement="s", mode=selector.NumberSelectorMode.BOX)
             ),
-            vol.Optional(
-                CONF_NO_MOTION_BLOCKER_STATE,
-                default=ex.get(CONF_NO_MOTION_BLOCKER_STATE, "on"),
-            ): selector.SelectSelector(
-                selector.SelectSelectorConfig(
-                    options=["on", "off"],
-                    mode=selector.SelectSelectorMode.LIST,
-                )
+            vol.Optional(CONF_MANUAL_OVERRIDE_DURATION, default=ex.get(CONF_MANUAL_OVERRIDE_DURATION, DEFAULT_MANUAL_OVERRIDE_DURATION)): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=86400, unit_of_measurement="s", mode=selector.NumberSelectorMode.BOX)
             ),
-            # ---- Stromverbrauch als Präsenz-Indikator ----
-            vol.Optional(CONF_POWER_SENSORS, default=ex.get(CONF_POWER_SENSORS, [])): selector.EntitySelector(
-                selector.EntitySelectorConfig(domain="sensor", multiple=True)
-            ),
-            vol.Optional(
-                CONF_POWER_THRESHOLD,
-                default=ex.get(CONF_POWER_THRESHOLD, DEFAULT_POWER_THRESHOLD),
-            ): selector.NumberSelector(
-                selector.NumberSelectorConfig(min=0, max=10000, unit_of_measurement="W", mode=selector.NumberSelectorMode.BOX)
+            # ── Szenen (optional, Schritt 2) ─────────────────────────────
+            vol.Optional("use_scenes", default=has_scenes): selector.BooleanSelector(),
+        }
+    )
+
+
+def _zone_scenes_schema(existing: dict | None = None) -> vol.Schema:
+    """Step 2 (optional) – only actual HA scene entities."""
+    ex = existing or {}
+
+    def _scene(key: str):
+        val = ex.get(key)
+        if val:
+            return vol.Optional(key, description={"suggested_value": val})
+        return vol.Optional(key)
+
+    return vol.Schema(
+        {
+            # ── Tageszeit-Szenen ─────────────────────────────────────────
+            _scene(CONF_SCENE_MORNING): selector.EntitySelector(selector.EntitySelectorConfig(domain="scene")),
+            vol.Optional(CONF_TIME_MORNING, default=ex.get(CONF_TIME_MORNING, "06:00:00")): selector.TimeSelector(),
+            _scene(CONF_SCENE_DAY): selector.EntitySelector(selector.EntitySelectorConfig(domain="scene")),
+            vol.Optional(CONF_TIME_DAY, default=ex.get(CONF_TIME_DAY, "09:00:00")): selector.TimeSelector(),
+            _scene(CONF_SCENE_EVENING): selector.EntitySelector(selector.EntitySelectorConfig(domain="scene")),
+            vol.Optional(CONF_TIME_EVENING, default=ex.get(CONF_TIME_EVENING, "17:00:00")): selector.TimeSelector(),
+            _scene(CONF_SCENE_NIGHT): selector.EntitySelector(selector.EntitySelectorConfig(domain="scene")),
+            vol.Optional(CONF_TIME_NIGHT, default=ex.get(CONF_TIME_NIGHT, "22:00:00")): selector.TimeSelector(),
+            # ── Ambient & Kein-Bewegung Szenen ───────────────────────────
+            _scene(CONF_SCENE_AMBIENT): selector.EntitySelector(selector.EntitySelectorConfig(domain="scene")),
+            _scene(CONF_SCENE_NO_MOTION): selector.EntitySelector(selector.EntitySelectorConfig(domain="scene")),
+            # ── Favoriten ────────────────────────────────────────────────
+            vol.Optional(CONF_FAVORITES, default=ex.get(CONF_FAVORITES, [])): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="scene", multiple=True)
             ),
         }
     )

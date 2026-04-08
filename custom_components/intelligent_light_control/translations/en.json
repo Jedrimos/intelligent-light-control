@@ -31,29 +31,40 @@
         }
       },
       "add_zone": {
-        "title": "Add Zone – Basics",
-        "description": "Step 1 of 2: Basic zone configuration",
+        "title": "Add Zone",
+        "description": "All fields except name and lights are optional. Scenes are not required – the zone will turn lights on/off automatically.",
         "data": {
           "name": "Zone name",
           "lights": "Lights (all zone lights)",
           "motion_sensors": "Motion sensors (PIR)",
-          "no_motion_wait": "Wait time after last motion (seconds)",
+          "no_motion_wait": "Wait time after last motion (s)",
           "presence_sensors": "Presence sensors (mmWave, radar, …)",
           "media_players": "Media players (TV, speakers) – count as presence",
-          "series_switches": "Series switches – switches (position 1, 2, …)",
-          "series_lights": "Series switches – lights (same order!)",
-          "switches": "Global switches (control all zone lights)",
-          "buttons": "Global buttons (control all zone lights)",
+          "power_sensors": "Power sensors (W) as presence indicator",
+          "power_threshold": "Power threshold (W)",
+          "switches": "Switches (control all zone lights)",
+          "buttons": "Buttons (control all zone lights)",
           "multi_tap_enabled": "Enable multi-tap (double/triple click)",
           "double_tap_action": "Double-tap action",
           "triple_tap_action": "Triple-tap action",
-          "transition_time": "Scene transition time (seconds)",
-          "manual_override_duration": "Manual override duration (seconds, 0 = unlimited)"
+          "series_switches": "Series switches – switches (position 1, 2, …)",
+          "series_lights": "Series switches – lights (same order!)",
+          "ambient_trigger": "Ambient trigger mode",
+          "time_scene_ambient_start": "Ambient time window start",
+          "time_scene_ambient_end": "Ambient time window end",
+          "sun_elevation_check": "Sun elevation limit (°, empty = always active)",
+          "automation_blocker": "Automation blocker entity",
+          "automation_blocker_state": "Blocker active when state is",
+          "no_motion_blocker": "No-motion blocker entity",
+          "no_motion_blocker_state": "No-motion blocker active when state is",
+          "transition_time": "Transition time for on/off (s)",
+          "manual_override_duration": "Manual override duration (s, 0 = unlimited)",
+          "use_scenes": "Configure HA scenes (morning / day / evening / night)"
         }
       },
       "add_zone_scenes": {
-        "title": "Add Zone – Scenes & Controls",
-        "description": "Step 2 of 2: Time-of-day scenes and advanced options",
+        "title": "Add Zone – Scenes",
+        "description": "Optional: HA scenes for different times of day. Leave all fields empty for simple on/off without scenes.",
         "data": {
           "scene_morning": "Morning scene",
           "time_scene_morning": "Morning start time",
@@ -63,19 +74,9 @@
           "time_scene_evening": "Evening start time",
           "scene_night": "Night scene",
           "time_scene_night": "Night start time",
-          "scene_ambient": "Ambient scene (on no motion)",
-          "ambient_trigger": "Ambient trigger (time window or sunset)",
-          "time_scene_ambient_start": "Ambient time window start (only for 'time')",
-          "time_scene_ambient_end": "Ambient time window end (only for 'time')",
+          "scene_ambient": "Ambient scene (on no-motion during ambient window)",
           "scene_no_motion": "Default no-motion scene",
-          "favorites": "Favorite scenes (for multi-tap or service)",
-          "sun_elevation_check": "Sun elevation limit (°, empty = always active)",
-          "automation_blocker": "Automation blocker entity",
-          "automation_blocker_state": "Blocker active when state is",
-          "no_motion_blocker": "No-motion blocker entity",
-          "no_motion_blocker_state": "No-motion blocker active when state is",
-          "power_sensors": "Power sensors (W) as presence indicator",
-          "power_threshold": "Power threshold (W)"
+          "favorites": "Favorite scenes (for multi-tap or service)"
         }
       },
       "edit_zone": {
@@ -85,29 +86,40 @@
         }
       },
       "edit_zone_basic": {
-        "title": "Edit Zone – Basics",
-        "description": "Step 1 of 2: Basic configuration",
+        "title": "Edit Zone",
+        "description": "All fields except name and lights are optional.",
         "data": {
           "name": "Zone name",
           "lights": "Lights (all zone lights)",
           "motion_sensors": "Motion sensors (PIR)",
-          "no_motion_wait": "Wait time after last motion (seconds)",
+          "no_motion_wait": "Wait time after last motion (s)",
           "presence_sensors": "Presence sensors (mmWave, radar, …)",
           "media_players": "Media players (TV, speakers) – count as presence",
-          "series_switches": "Series switches – switches (position 1, 2, …)",
-          "series_lights": "Series switches – lights (same order!)",
-          "switches": "Global switches (control all zone lights)",
-          "buttons": "Global buttons (control all zone lights)",
+          "power_sensors": "Power sensors (W) as presence indicator",
+          "power_threshold": "Power threshold (W)",
+          "switches": "Switches (control all zone lights)",
+          "buttons": "Buttons (control all zone lights)",
           "multi_tap_enabled": "Enable multi-tap (double/triple click)",
           "double_tap_action": "Double-tap action",
           "triple_tap_action": "Triple-tap action",
-          "transition_time": "Scene transition time (seconds)",
-          "manual_override_duration": "Manual override duration (seconds, 0 = unlimited)"
+          "series_switches": "Series switches – switches (position 1, 2, …)",
+          "series_lights": "Series switches – lights (same order!)",
+          "ambient_trigger": "Ambient trigger mode",
+          "time_scene_ambient_start": "Ambient time window start",
+          "time_scene_ambient_end": "Ambient time window end",
+          "sun_elevation_check": "Sun elevation limit (°, empty = always active)",
+          "automation_blocker": "Automation blocker entity",
+          "automation_blocker_state": "Blocker active when state is",
+          "no_motion_blocker": "No-motion blocker entity",
+          "no_motion_blocker_state": "No-motion blocker active when state is",
+          "transition_time": "Transition time for on/off (s)",
+          "manual_override_duration": "Manual override duration (s, 0 = unlimited)",
+          "use_scenes": "Configure HA scenes (morning / day / evening / night)"
         }
       },
       "edit_zone_scenes": {
-        "title": "Edit Zone – Scenes & Controls",
-        "description": "Step 2 of 2: Time-of-day scenes and advanced options",
+        "title": "Edit Zone – Scenes",
+        "description": "Optional: HA scenes for different times of day. Leave all fields empty for simple on/off without scenes.",
         "data": {
           "scene_morning": "Morning scene",
           "time_scene_morning": "Morning start time",
@@ -117,19 +129,9 @@
           "time_scene_evening": "Evening start time",
           "scene_night": "Night scene",
           "time_scene_night": "Night start time",
-          "scene_ambient": "Ambient scene (on no motion)",
-          "ambient_trigger": "Ambient trigger (time window or sunset)",
-          "time_scene_ambient_start": "Ambient time window start (only for 'time')",
-          "time_scene_ambient_end": "Ambient time window end (only for 'time')",
+          "scene_ambient": "Ambient scene (on no-motion during ambient window)",
           "scene_no_motion": "Default no-motion scene",
-          "favorites": "Favorite scenes (for multi-tap or service)",
-          "sun_elevation_check": "Sun elevation limit (°, empty = always active)",
-          "automation_blocker": "Automation blocker entity",
-          "automation_blocker_state": "Blocker active when state is",
-          "no_motion_blocker": "No-motion blocker entity",
-          "no_motion_blocker_state": "No-motion blocker active when state is",
-          "power_sensors": "Power sensors (W) as presence indicator",
-          "power_threshold": "Power threshold (W)"
+          "favorites": "Favorite scenes (for multi-tap or service)"
         }
       },
       "remove_zone": {
@@ -144,7 +146,7 @@
   "selector": {
     "ambient_trigger": {
       "options": {
-        "time": "Fixed time window",
+        "time": "Fixed time window (configure start/end)",
         "sun": "Sunset / night (automatic)"
       }
     },
