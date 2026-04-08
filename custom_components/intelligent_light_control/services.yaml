@@ -192,6 +192,69 @@ add_zone:
             - input_button
             - event
           multiple: true
+    series_switches:
+      name: Serienschalter – Schalter
+      description: "Serienschalter: Jeder Schalter steuert die Leuchte an gleicher Position in 'series_lights'."
+      required: false
+      example: ["input_boolean.schalter_decke", "input_boolean.schalter_wand"]
+      selector:
+        entity:
+          multiple: true
+    series_lights:
+      name: Serienschalter – Leuchten
+      description: "Serienschalter: Leuchten, die den Schaltern in 'series_switches' (positionsweise) zugeordnet sind."
+      required: false
+      example: ["light.decke", "light.wand"]
+      selector:
+        entity:
+          domain: light
+          multiple: true
+    presence_sensors:
+      name: Präsenzsensoren
+      description: Zusätzliche Binärsensoren für Präsenzerkennung (z.B. mmWave-Radar, Zigbee-Präsenz). Bei 'on' gelten Lichter als besetzt.
+      required: false
+      example: ["binary_sensor.radar_wohnzimmer"]
+      selector:
+        entity:
+          domain: binary_sensor
+          multiple: true
+    media_players:
+      name: Media Player
+      description: Wenn ein Media Player spielt oder pausiert, gilt der Raum als besetzt und das Licht bleibt an.
+      required: false
+      example: ["media_player.tv_wohnzimmer"]
+      selector:
+        entity:
+          domain: media_player
+          multiple: true
+    power_sensors:
+      name: Stromverbrauchssensoren
+      description: Sensoren (in Watt), die bei Überschreitung des Schwellwerts als Präsenz zählen (z.B. TV-Stromzähler).
+      required: false
+      selector:
+        entity:
+          domain: sensor
+          multiple: true
+    power_threshold:
+      name: Stromverbrauch-Schwellwert (W)
+      description: Ab diesem Verbrauch (Watt) gilt der Sensor als Präsenz-Anzeiger.
+      required: false
+      default: 5.0
+      selector:
+        number:
+          min: 0
+          max: 10000
+          unit_of_measurement: W
+    ambient_trigger:
+      name: Ambient-Auslöser
+      description: "'time' = festes Zeitfenster, 'sun' = automatisch aktiv wenn Sonne unter dem Horizont (Dämmerung/Nacht)."
+      required: false
+      default: "time"
+      selector:
+        select:
+          options:
+            - "time"
+            - "sun"
     manual_override_duration:
       name: Manueller Override Dauer
       description: Sekunden bis der manuelle Override automatisch endet. 0 = unbegrenzt.
@@ -342,6 +405,56 @@ update_zone:
             - input_button
             - event
           multiple: true
+    series_switches:
+      name: Serienschalter – Schalter
+      required: false
+      selector:
+        entity:
+          multiple: true
+    series_lights:
+      name: Serienschalter – Leuchten
+      required: false
+      selector:
+        entity:
+          domain: light
+          multiple: true
+    presence_sensors:
+      name: Präsenzsensoren
+      required: false
+      selector:
+        entity:
+          domain: binary_sensor
+          multiple: true
+    media_players:
+      name: Media Player
+      required: false
+      selector:
+        entity:
+          domain: media_player
+          multiple: true
+    power_sensors:
+      name: Stromverbrauchssensoren
+      required: false
+      selector:
+        entity:
+          domain: sensor
+          multiple: true
+    power_threshold:
+      name: Stromverbrauch-Schwellwert (W)
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 10000
+          unit_of_measurement: W
+    ambient_trigger:
+      name: Ambient-Auslöser
+      required: false
+      selector:
+        select:
+          options:
+            - "time"
+            - "sun"
     manual_override_duration:
       name: Manueller Override Dauer
       required: false

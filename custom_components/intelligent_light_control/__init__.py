@@ -10,21 +10,31 @@ from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
 
 from .const import (
+    AMBIENT_TRIGGERS,
+    AMBIENT_TRIGGER_TIME,
+    CONF_AMBIENT_TRIGGER,
     CONF_AUTOMATION_BLOCKER,
     CONF_AUTOMATION_BLOCKER_STATE,
     CONF_BUTTONS,
     CONF_LIGHTS,
     CONF_MANUAL_OVERRIDE_DURATION,
+    CONF_MEDIA_PLAYERS,
+    CONF_MEDIA_PRESENCE_STATES,
     CONF_MOTION_SENSORS,
     CONF_NO_MOTION_BLOCKER,
     CONF_NO_MOTION_BLOCKER_STATE,
     CONF_NO_MOTION_WAIT,
+    CONF_POWER_SENSORS,
+    CONF_POWER_THRESHOLD,
+    CONF_PRESENCE_SENSORS,
     CONF_SCENE_AMBIENT,
     CONF_SCENE_DAY,
     CONF_SCENE_EVENING,
     CONF_SCENE_MORNING,
     CONF_SCENE_NIGHT,
     CONF_SCENE_NO_MOTION,
+    CONF_SERIES_LIGHTS,
+    CONF_SERIES_SWITCHES,
     CONF_SWITCHES,
     CONF_SUN_ELEVATION,
     CONF_TIME_AMBIENT_END,
@@ -36,7 +46,9 @@ from .const import (
     CONF_ZONE_ID,
     CONF_ZONE_NAME,
     DEFAULT_MANUAL_OVERRIDE_DURATION,
+    DEFAULT_MEDIA_PRESENCE_STATES,
     DEFAULT_NO_MOTION_WAIT,
+    DEFAULT_POWER_THRESHOLD,
     DOMAIN,
     PLATFORMS,
     SERVICE_ACTIVATE_SCENE,
@@ -86,6 +98,17 @@ _ZONE_FIELDS = {
     vol.Optional(CONF_SWITCHES): vol.All(cv.ensure_list, [cv.entity_id]),
     vol.Optional(CONF_BUTTONS): vol.All(cv.ensure_list, [cv.entity_id]),
     vol.Optional(CONF_MANUAL_OVERRIDE_DURATION, default=DEFAULT_MANUAL_OVERRIDE_DURATION): vol.Coerce(int),
+    # Serienschalter – parallel lists, zipped by index: series_switches[i] controls series_lights[i]
+    vol.Optional(CONF_SERIES_SWITCHES): vol.All(cv.ensure_list, [cv.entity_id]),
+    vol.Optional(CONF_SERIES_LIGHTS): vol.All(cv.ensure_list, [cv.entity_id]),
+    # Presence detection (TV, mmWave, power sensors, etc.)
+    vol.Optional(CONF_PRESENCE_SENSORS): vol.All(cv.ensure_list, [cv.entity_id]),
+    vol.Optional(CONF_MEDIA_PLAYERS): vol.All(cv.ensure_list, [cv.entity_id]),
+    vol.Optional(CONF_MEDIA_PRESENCE_STATES, default=DEFAULT_MEDIA_PRESENCE_STATES): vol.All(cv.ensure_list, [cv.string]),
+    vol.Optional(CONF_POWER_SENSORS): vol.All(cv.ensure_list, [cv.entity_id]),
+    vol.Optional(CONF_POWER_THRESHOLD, default=DEFAULT_POWER_THRESHOLD): vol.Coerce(float),
+    # Ambient trigger mode: "time" = fixed time window, "sun" = sun below horizon
+    vol.Optional(CONF_AMBIENT_TRIGGER, default=AMBIENT_TRIGGER_TIME): vol.In(AMBIENT_TRIGGERS),
 }
 
 _ADD_ZONE_SCHEMA = vol.Schema(

@@ -39,6 +39,25 @@ CONF_SCENE_NO_MOTION: Final = "scene_no_motion"
 CONF_SWITCHES: Final = "switches"
 CONF_BUTTONS: Final = "buttons"
 
+# Serienschalter – per-light switch/button mapping (parallel lists, zipped by index)
+CONF_SERIES_SWITCHES: Final = "series_switches"
+CONF_SERIES_LIGHTS: Final = "series_lights"
+
+# Presence detection (beyond PIR motion sensors)
+CONF_PRESENCE_SENSORS: Final = "presence_sensors"    # binary_sensor – mmWave, occupancy, etc.
+CONF_MEDIA_PLAYERS: Final = "media_players"           # media_player entities
+CONF_MEDIA_PRESENCE_STATES: Final = "media_presence_states"  # states that count as presence
+CONF_POWER_SENSORS: Final = "power_sensors"           # sensor entities (W / kW)
+CONF_POWER_THRESHOLD: Final = "power_threshold"       # W above which = presence detected
+DEFAULT_POWER_THRESHOLD: Final = 5.0
+DEFAULT_MEDIA_PRESENCE_STATES: Final = ["playing", "paused", "buffering"]
+
+# Ambient trigger mode
+CONF_AMBIENT_TRIGGER: Final = "ambient_trigger"
+AMBIENT_TRIGGER_TIME: Final = "time"   # fixed start/end times
+AMBIENT_TRIGGER_SUN: Final = "sun"     # sun.sun below_horizon
+AMBIENT_TRIGGERS: Final = [AMBIENT_TRIGGER_TIME, AMBIENT_TRIGGER_SUN]
+
 # Zone modes
 MODE_AUTO: Final = "auto"
 MODE_MANUAL: Final = "manual"
@@ -79,6 +98,7 @@ ATTR_MODE: Final = "mode"
 ATTR_LIGHTS_ON: Final = "lights_on"
 ATTR_ACTIVE_SCENE: Final = "active_scene"
 ATTR_MOTION_DETECTED: Final = "motion_detected"
+ATTR_PRESENCE_DETECTED: Final = "presence_detected"
 ATTR_LAST_MOTION: Final = "last_motion"
 ATTR_NO_MOTION_WAIT: Final = "no_motion_wait"
 ATTR_SUN_ELEVATION: Final = "sun_elevation_check"

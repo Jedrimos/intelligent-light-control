@@ -10,21 +10,30 @@ from homeassistant.core import callback
 from homeassistant.helpers import selector
 
 from .const import (
+    AMBIENT_TRIGGERS,
+    AMBIENT_TRIGGER_TIME,
+    CONF_AMBIENT_TRIGGER,
     CONF_AUTOMATION_BLOCKER,
     CONF_AUTOMATION_BLOCKER_STATE,
     CONF_BUTTONS,
     CONF_LIGHTS,
     CONF_MANUAL_OVERRIDE_DURATION,
+    CONF_MEDIA_PLAYERS,
     CONF_MOTION_SENSORS,
     CONF_NO_MOTION_BLOCKER,
     CONF_NO_MOTION_BLOCKER_STATE,
     CONF_NO_MOTION_WAIT,
+    CONF_POWER_SENSORS,
+    CONF_POWER_THRESHOLD,
+    CONF_PRESENCE_SENSORS,
     CONF_SCENE_AMBIENT,
     CONF_SCENE_DAY,
     CONF_SCENE_EVENING,
     CONF_SCENE_MORNING,
     CONF_SCENE_NIGHT,
     CONF_SCENE_NO_MOTION,
+    CONF_SERIES_LIGHTS,
+    CONF_SERIES_SWITCHES,
     CONF_SWITCHES,
     CONF_SUN_ELEVATION,
     CONF_TIME_AMBIENT_END,
@@ -38,6 +47,7 @@ from .const import (
     CONF_ZONES,
     DEFAULT_MANUAL_OVERRIDE_DURATION,
     DEFAULT_NO_MOTION_WAIT,
+    DEFAULT_POWER_THRESHOLD,
     DOMAIN,
     SYSTEM_MODES,
 )
@@ -320,9 +330,11 @@ def _zone_basic_schema(existing: dict | None = None) -> vol.Schema:
     return vol.Schema(
         {
             vol.Required(CONF_ZONE_NAME, default=ex.get(CONF_ZONE_NAME, "")): selector.TextSelector(),
+            # --- Zone lights (all lights controlled by automation) ---
             vol.Required(CONF_LIGHTS, default=ex.get(CONF_LIGHTS, [])): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="light", multiple=True)
             ),
+            # --- Motion / PIR sensors ---
             vol.Optional(CONF_MOTION_SENSORS, default=ex.get(CONF_MOTION_SENSORS, [])): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="binary_sensor", multiple=True)
             ),
@@ -331,6 +343,27 @@ def _zone_basic_schema(existing: dict | None = None) -> vol.Schema:
                 default=ex.get(CONF_NO_MOTION_WAIT, DEFAULT_NO_MOTION_WAIT),
             ): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=0, max=3600, unit_of_measurement="s", mode=selector.NumberSelectorMode.BOX)
+            ),
+            # --- Extended presence detection (TV, mmWave, etc.) ---
+            vol.Optional(CONF_PRESENCE_SENSORS, default=ex.get(CONF_PRESENCE_SENSORS, [])): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="binary_sensor", multiple=True)
+            ),
+            vol.Optional(CONF_MEDIA_PLAYERS, default=ex.get(CONF_MEDIA_PLAYERS, [])): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="media_player", multiple=True)
+            ),
+            # --- Serienschalter: switch[i] controls light[i] individually ---
+            vol.Optional(CONF_SERIES_SWITCHES, default=ex.get(CONF_SERIES_SWITCHES, [])): selector.EntitySelector(
+                selector.EntitySelectorConfig(multiple=True)
+            ),
+            vol.Optional(CONF_SERIES_LIGHTS, default=ex.get(CONF_SERIES_LIGHTS, [])): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="light", multiple=True)
+            ),
+            # --- Global switches / buttons (control all zone lights) ---
+            vol.Optional(CONF_SWITCHES, default=ex.get(CONF_SWITCHES, [])): selector.EntitySelector(
+                selector.EntitySelectorConfig(multiple=True)
+            ),
+            vol.Optional(CONF_BUTTONS, default=ex.get(CONF_BUTTONS, [])): selector.EntitySelector(
+                selector.EntitySelectorConfig(multiple=True)
             ),
             vol.Optional(
                 CONF_MANUAL_OVERRIDE_DURATION,
@@ -373,6 +406,14 @@ def _zone_scenes_schema(existing: dict | None = None) -> vol.Schema:
             vol.Optional(CONF_SCENE_NO_MOTION, default=ex.get(CONF_SCENE_NO_MOTION, "")): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="scene")
             ),
+            # ---- Ambient trigger mode ----
+            vol.Optional(CONF_AMBIENT_TRIGGER, default=ex.get(CONF_AMBIENT_TRIGGER, AMBIENT_TRIGGER_TIME)): selector.SelectSelector(
+                selector.SelectSelectorConfig(
+                    options=AMBIENT_TRIGGERS,
+                    mode=selector.SelectSelectorMode.LIST,
+                    translation_key="ambient_trigger",
+                )
+            ),
             # ---- Sonnenhöhe ----
             vol.Optional(CONF_SUN_ELEVATION, default=ex.get(CONF_SUN_ELEVATION, None)): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=-90, max=90, unit_of_measurement="°", mode=selector.NumberSelectorMode.BOX)
@@ -402,12 +443,15 @@ def _zone_scenes_schema(existing: dict | None = None) -> vol.Schema:
                     mode=selector.SelectSelectorMode.LIST,
                 )
             ),
-            # ---- Schalter / Taster ----
-            vol.Optional(CONF_SWITCHES, default=ex.get(CONF_SWITCHES, [])): selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=True)
+            # ---- Stromverbrauch als Präsenz-Indikator ----
+            vol.Optional(CONF_POWER_SENSORS, default=ex.get(CONF_POWER_SENSORS, [])): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="sensor", multiple=True)
             ),
-            vol.Optional(CONF_BUTTONS, default=ex.get(CONF_BUTTONS, [])): selector.EntitySelector(
-                selector.EntitySelectorConfig(multiple=True)
+            vol.Optional(
+                CONF_POWER_THRESHOLD,
+                default=ex.get(CONF_POWER_THRESHOLD, DEFAULT_POWER_THRESHOLD),
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=10000, unit_of_measurement="W", mode=selector.NumberSelectorMode.BOX)
             ),
         }
     )
