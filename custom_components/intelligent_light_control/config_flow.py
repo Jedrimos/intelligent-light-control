@@ -16,10 +16,13 @@ from .const import (
     CONF_AUTOMATION_BLOCKER,
     CONF_AUTOMATION_BLOCKER_STATE,
     CONF_BUTTONS,
+    CONF_DOUBLE_TAP_ACTION,
+    CONF_FAVORITES,
     CONF_LIGHTS,
     CONF_MANUAL_OVERRIDE_DURATION,
     CONF_MEDIA_PLAYERS,
     CONF_MOTION_SENSORS,
+    CONF_MULTI_TAP_ENABLED,
     CONF_NO_MOTION_BLOCKER,
     CONF_NO_MOTION_BLOCKER_STATE,
     CONF_NO_MOTION_WAIT,
@@ -42,14 +45,18 @@ from .const import (
     CONF_TIME_EVENING,
     CONF_TIME_MORNING,
     CONF_TIME_NIGHT,
+    CONF_TRANSITION_TIME,
+    CONF_TRIPLE_TAP_ACTION,
     CONF_ZONE_ID,
     CONF_ZONE_NAME,
     CONF_ZONES,
     DEFAULT_MANUAL_OVERRIDE_DURATION,
     DEFAULT_NO_MOTION_WAIT,
     DEFAULT_POWER_THRESHOLD,
+    DEFAULT_TRANSITION_TIME,
     DOMAIN,
     SYSTEM_MODES,
+    TAP_ACTIONS,
 )
 
 
@@ -365,6 +372,21 @@ def _zone_basic_schema(existing: dict | None = None) -> vol.Schema:
             vol.Optional(CONF_BUTTONS, default=ex.get(CONF_BUTTONS, [])): selector.EntitySelector(
                 selector.EntitySelectorConfig(multiple=True)
             ),
+            # --- Multi-tap configuration (for buttons) ---
+            vol.Optional(CONF_MULTI_TAP_ENABLED, default=ex.get(CONF_MULTI_TAP_ENABLED, False)): selector.BooleanSelector(),
+            vol.Optional(CONF_DOUBLE_TAP_ACTION, default=ex.get(CONF_DOUBLE_TAP_ACTION, "next_scene")): selector.SelectSelector(
+                selector.SelectSelectorConfig(options=TAP_ACTIONS, mode=selector.SelectSelectorMode.LIST, translation_key="tap_action")
+            ),
+            vol.Optional(CONF_TRIPLE_TAP_ACTION, default=ex.get(CONF_TRIPLE_TAP_ACTION, "favorite_1")): selector.SelectSelector(
+                selector.SelectSelectorConfig(options=TAP_ACTIONS, mode=selector.SelectSelectorMode.LIST, translation_key="tap_action")
+            ),
+            # --- Timing ---
+            vol.Optional(
+                CONF_TRANSITION_TIME,
+                default=ex.get(CONF_TRANSITION_TIME, DEFAULT_TRANSITION_TIME),
+            ): selector.NumberSelector(
+                selector.NumberSelectorConfig(min=0, max=10, step=0.1, unit_of_measurement="s", mode=selector.NumberSelectorMode.BOX)
+            ),
             vol.Optional(
                 CONF_MANUAL_OVERRIDE_DURATION,
                 default=ex.get(CONF_MANUAL_OVERRIDE_DURATION, DEFAULT_MANUAL_OVERRIDE_DURATION),
@@ -405,6 +427,10 @@ def _zone_scenes_schema(existing: dict | None = None) -> vol.Schema:
             vol.Optional(CONF_TIME_AMBIENT_END, default=ex.get(CONF_TIME_AMBIENT_END, "00:00:00")): selector.TimeSelector(),
             vol.Optional(CONF_SCENE_NO_MOTION, default=ex.get(CONF_SCENE_NO_MOTION, "")): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="scene")
+            ),
+            # ---- Favoriten-Szenen (für Multi-Tap, Favorit-Service) ----
+            vol.Optional(CONF_FAVORITES, default=ex.get(CONF_FAVORITES, [])): selector.EntitySelector(
+                selector.EntitySelectorConfig(domain="scene", multiple=True)
             ),
             # ---- Ambient trigger mode ----
             vol.Optional(CONF_AMBIENT_TRIGGER, default=ex.get(CONF_AMBIENT_TRIGGER, AMBIENT_TRIGGER_TIME)): selector.SelectSelector(

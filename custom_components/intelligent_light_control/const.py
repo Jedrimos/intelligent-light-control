@@ -87,6 +87,7 @@ SERVICE_TURN_ON_ZONE: Final = "turn_on_zone"
 SERVICE_TURN_OFF_ZONE: Final = "turn_off_zone"
 SERVICE_TOGGLE_ZONE: Final = "toggle_zone"
 SERVICE_ACTIVATE_SCENE: Final = "activate_scene"
+SERVICE_ACTIVATE_FAVORITE: Final = "activate_favorite"
 SERVICE_SET_SYSTEM_MODE: Final = "set_system_mode"
 SERVICE_RELOAD: Final = "reload"
 SERVICE_EXPORT_CONFIG: Final = "export_config"
@@ -106,6 +107,34 @@ ATTR_SWITCHES: Final = "switches"
 ATTR_BUTTONS: Final = "buttons"
 ATTR_LIGHTS: Final = "lights"
 ATTR_MOTION_SENSORS: Final = "motion_sensors"
+
+# Transition (fade) time for scene/light calls
+CONF_TRANSITION_TIME: Final = "transition_time"   # seconds (float), 0 = instant
+DEFAULT_TRANSITION_TIME: Final = 0.5
+
+# Scene favorites (list of up to 5 scene entity IDs per zone)
+CONF_FAVORITES: Final = "favorites"
+
+# Multi-tap button configuration
+CONF_MULTI_TAP_ENABLED: Final = "multi_tap_enabled"
+CONF_DOUBLE_TAP_ACTION: Final = "double_tap_action"
+CONF_TRIPLE_TAP_ACTION: Final = "triple_tap_action"
+MULTI_TAP_WINDOW: Final = 0.4   # seconds: max delay between taps to count as multi-tap
+
+TAP_ACTION_TOGGLE: Final = "toggle"           # single tap default (turn on/off)
+TAP_ACTION_NEXT_SCENE: Final = "next_scene"   # cycle through time-of-day scenes
+TAP_ACTION_FAVORITE_1: Final = "favorite_1"
+TAP_ACTION_FAVORITE_2: Final = "favorite_2"
+TAP_ACTION_FAVORITE_3: Final = "favorite_3"
+TAP_ACTION_ALL_OFF: Final = "all_off"         # force off regardless of state
+TAP_ACTIONS: Final = [
+    TAP_ACTION_TOGGLE,
+    TAP_ACTION_NEXT_SCENE,
+    TAP_ACTION_FAVORITE_1,
+    TAP_ACTION_FAVORITE_2,
+    TAP_ACTION_FAVORITE_3,
+    TAP_ACTION_ALL_OFF,
+]
 
 # Defaults
 DEFAULT_NO_MOTION_WAIT: Final = 120          # seconds

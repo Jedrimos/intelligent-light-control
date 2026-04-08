@@ -255,6 +255,60 @@ add_zone:
           options:
             - "time"
             - "sun"
+    favorites:
+      name: Favoriten-Szenen
+      description: Bis zu 5 Lieblingsszenen. Per Multi-Tap oder activate_favorite-Service abrufbar.
+      required: false
+      selector:
+        entity:
+          domain: scene
+          multiple: true
+    multi_tap_enabled:
+      name: Multi-Tap aktivieren
+      description: Taster-Mehrfachklick-Erkennung aktivieren (Doppelklick, Dreifachklick).
+      required: false
+      default: false
+      selector:
+        boolean:
+    double_tap_action:
+      name: Doppelklick-Aktion
+      description: Aktion bei zweifachem Tasterdruck.
+      required: false
+      default: "next_scene"
+      selector:
+        select:
+          options:
+            - "toggle"
+            - "next_scene"
+            - "favorite_1"
+            - "favorite_2"
+            - "favorite_3"
+            - "all_off"
+    triple_tap_action:
+      name: Dreifachklick-Aktion
+      description: Aktion bei dreifachem Tasterdruck.
+      required: false
+      default: "favorite_1"
+      selector:
+        select:
+          options:
+            - "toggle"
+            - "next_scene"
+            - "favorite_1"
+            - "favorite_2"
+            - "favorite_3"
+            - "all_off"
+    transition_time:
+      name: Übergangszeit (s)
+      description: Sanftes Ein-/Ausblenden beim Szenenwechsel in Sekunden. 0 = sofort.
+      required: false
+      default: 0.5
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 0.1
+          unit_of_measurement: s
     manual_override_duration:
       name: Manueller Override Dauer
       description: Sekunden bis der manuelle Override automatisch endet. 0 = unbegrenzt.
@@ -455,6 +509,51 @@ update_zone:
           options:
             - "time"
             - "sun"
+    favorites:
+      name: Favoriten-Szenen
+      required: false
+      selector:
+        entity:
+          domain: scene
+          multiple: true
+    multi_tap_enabled:
+      name: Multi-Tap aktivieren
+      required: false
+      selector:
+        boolean:
+    double_tap_action:
+      name: Doppelklick-Aktion
+      required: false
+      selector:
+        select:
+          options:
+            - "toggle"
+            - "next_scene"
+            - "favorite_1"
+            - "favorite_2"
+            - "favorite_3"
+            - "all_off"
+    triple_tap_action:
+      name: Dreifachklick-Aktion
+      required: false
+      selector:
+        select:
+          options:
+            - "toggle"
+            - "next_scene"
+            - "favorite_1"
+            - "favorite_2"
+            - "favorite_3"
+            - "all_off"
+    transition_time:
+      name: Übergangszeit (s)
+      required: false
+      selector:
+        number:
+          min: 0
+          max: 10
+          step: 0.1
+          unit_of_measurement: s
     manual_override_duration:
       name: Manueller Override Dauer
       required: false
@@ -531,6 +630,26 @@ activate_scene:
       selector:
         entity:
           domain: scene
+
+activate_favorite:
+  name: Favorit aktivieren
+  description: Aktiviert eine gespeicherte Lieblingsszene einer Zone.
+  fields:
+    zone_id:
+      name: Zonen-ID
+      required: true
+      selector:
+        text:
+    index:
+      name: Favorit-Index
+      description: "0 = erster Favorit, 1 = zweiter, etc."
+      required: false
+      default: 0
+      selector:
+        number:
+          min: 0
+          max: 4
+          mode: box
 
 set_system_mode:
   name: Systemmodus setzen

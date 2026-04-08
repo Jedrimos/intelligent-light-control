@@ -44,6 +44,10 @@
           "series_lights": "Serienschalter – Leuchten (selbe Reihenfolge!)",
           "switches": "Globale Schalter (steuern alle Leuchten der Zone)",
           "buttons": "Globale Taster (steuern alle Leuchten der Zone)",
+          "multi_tap_enabled": "Multi-Tap aktivieren (Doppel-/Dreifachklick)",
+          "double_tap_action": "Doppelklick-Aktion",
+          "triple_tap_action": "Dreifachklick-Aktion",
+          "transition_time": "Übergangszeit beim Szenenwechsel (Sekunden)",
           "manual_override_duration": "Manueller Override Dauer (Sekunden, 0 = unbegrenzt)"
         }
       },
@@ -64,6 +68,7 @@
           "time_scene_ambient_start": "Ambient-Zeitfenster Start (nur bei 'time')",
           "time_scene_ambient_end": "Ambient-Zeitfenster Ende (nur bei 'time')",
           "scene_no_motion": "Standard Kein-Bewegung-Szene",
+          "favorites": "Favoriten-Szenen (für Mehrfach-Tap oder Service)",
           "sun_elevation_check": "Sonnenhöhen-Limit (°, leer = immer aktiv)",
           "automation_blocker": "Automation-Blocker Entität",
           "automation_blocker_state": "Blocker aktiv wenn Zustand",
@@ -93,6 +98,10 @@
           "series_lights": "Serienschalter – Leuchten (selbe Reihenfolge!)",
           "switches": "Globale Schalter (steuern alle Leuchten der Zone)",
           "buttons": "Globale Taster (steuern alle Leuchten der Zone)",
+          "multi_tap_enabled": "Multi-Tap aktivieren (Doppel-/Dreifachklick)",
+          "double_tap_action": "Doppelklick-Aktion",
+          "triple_tap_action": "Dreifachklick-Aktion",
+          "transition_time": "Übergangszeit beim Szenenwechsel (Sekunden)",
           "manual_override_duration": "Manueller Override Dauer (Sekunden, 0 = unbegrenzt)"
         }
       },
@@ -113,6 +122,7 @@
           "time_scene_ambient_start": "Ambient-Zeitfenster Start (nur bei 'time')",
           "time_scene_ambient_end": "Ambient-Zeitfenster Ende (nur bei 'time')",
           "scene_no_motion": "Standard Kein-Bewegung-Szene",
+          "favorites": "Favoriten-Szenen (für Mehrfach-Tap oder Service)",
           "sun_elevation_check": "Sonnenhöhen-Limit (°, leer = immer aktiv)",
           "automation_blocker": "Automation-Blocker Entität",
           "automation_blocker_state": "Blocker aktiv wenn Zustand",
@@ -136,6 +146,16 @@
       "options": {
         "time": "Festes Zeitfenster",
         "sun": "Sonnenuntergang / Nacht (automatisch)"
+      }
+    },
+    "tap_action": {
+      "options": {
+        "toggle": "Ein/Aus (Standard)",
+        "next_scene": "Nächste Tageszeit-Szene",
+        "favorite_1": "Favorit 1",
+        "favorite_2": "Favorit 2",
+        "favorite_3": "Favorit 3",
+        "all_off": "Alle aus"
       }
     }
   },

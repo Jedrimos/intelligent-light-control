@@ -44,6 +44,10 @@
           "series_lights": "Series switches – lights (same order!)",
           "switches": "Global switches (control all zone lights)",
           "buttons": "Global buttons (control all zone lights)",
+          "multi_tap_enabled": "Enable multi-tap (double/triple click)",
+          "double_tap_action": "Double-tap action",
+          "triple_tap_action": "Triple-tap action",
+          "transition_time": "Scene transition time (seconds)",
           "manual_override_duration": "Manual override duration (seconds, 0 = unlimited)"
         }
       },
@@ -64,6 +68,7 @@
           "time_scene_ambient_start": "Ambient time window start (only for 'time')",
           "time_scene_ambient_end": "Ambient time window end (only for 'time')",
           "scene_no_motion": "Default no-motion scene",
+          "favorites": "Favorite scenes (for multi-tap or service)",
           "sun_elevation_check": "Sun elevation limit (°, empty = always active)",
           "automation_blocker": "Automation blocker entity",
           "automation_blocker_state": "Blocker active when state is",
@@ -93,6 +98,10 @@
           "series_lights": "Series switches – lights (same order!)",
           "switches": "Global switches (control all zone lights)",
           "buttons": "Global buttons (control all zone lights)",
+          "multi_tap_enabled": "Enable multi-tap (double/triple click)",
+          "double_tap_action": "Double-tap action",
+          "triple_tap_action": "Triple-tap action",
+          "transition_time": "Scene transition time (seconds)",
           "manual_override_duration": "Manual override duration (seconds, 0 = unlimited)"
         }
       },
@@ -113,6 +122,7 @@
           "time_scene_ambient_start": "Ambient time window start (only for 'time')",
           "time_scene_ambient_end": "Ambient time window end (only for 'time')",
           "scene_no_motion": "Default no-motion scene",
+          "favorites": "Favorite scenes (for multi-tap or service)",
           "sun_elevation_check": "Sun elevation limit (°, empty = always active)",
           "automation_blocker": "Automation blocker entity",
           "automation_blocker_state": "Blocker active when state is",
@@ -136,6 +146,16 @@
       "options": {
         "time": "Fixed time window",
         "sun": "Sunset / night (automatic)"
+      }
+    },
+    "tap_action": {
+      "options": {
+        "toggle": "Toggle on/off (default)",
+        "next_scene": "Next time-of-day scene",
+        "favorite_1": "Favorite 1",
+        "favorite_2": "Favorite 2",
+        "favorite_3": "Favorite 3",
+        "all_off": "All off"
       }
     }
   },

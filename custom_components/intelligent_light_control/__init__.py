@@ -16,11 +16,14 @@ from .const import (
     CONF_AUTOMATION_BLOCKER,
     CONF_AUTOMATION_BLOCKER_STATE,
     CONF_BUTTONS,
+    CONF_DOUBLE_TAP_ACTION,
+    CONF_FAVORITES,
     CONF_LIGHTS,
     CONF_MANUAL_OVERRIDE_DURATION,
     CONF_MEDIA_PLAYERS,
     CONF_MEDIA_PRESENCE_STATES,
     CONF_MOTION_SENSORS,
+    CONF_MULTI_TAP_ENABLED,
     CONF_NO_MOTION_BLOCKER,
     CONF_NO_MOTION_BLOCKER_STATE,
     CONF_NO_MOTION_WAIT,
@@ -43,14 +46,18 @@ from .const import (
     CONF_TIME_EVENING,
     CONF_TIME_MORNING,
     CONF_TIME_NIGHT,
+    CONF_TRANSITION_TIME,
+    CONF_TRIPLE_TAP_ACTION,
     CONF_ZONE_ID,
     CONF_ZONE_NAME,
     DEFAULT_MANUAL_OVERRIDE_DURATION,
     DEFAULT_MEDIA_PRESENCE_STATES,
     DEFAULT_NO_MOTION_WAIT,
     DEFAULT_POWER_THRESHOLD,
+    DEFAULT_TRANSITION_TIME,
     DOMAIN,
     PLATFORMS,
+    SERVICE_ACTIVATE_FAVORITE,
     SERVICE_ACTIVATE_SCENE,
     SERVICE_ADD_ZONE,
     SERVICE_EXPORT_CONFIG,
@@ -63,6 +70,7 @@ from .const import (
     SERVICE_TURN_ON_ZONE,
     SERVICE_UPDATE_ZONE,
     SYSTEM_MODES,
+    TAP_ACTIONS,
     ZONE_MODES,
 )
 from .coordinator import ILCCoordinator
@@ -109,6 +117,14 @@ _ZONE_FIELDS = {
     vol.Optional(CONF_POWER_THRESHOLD, default=DEFAULT_POWER_THRESHOLD): vol.Coerce(float),
     # Ambient trigger mode: "time" = fixed time window, "sun" = sun below horizon
     vol.Optional(CONF_AMBIENT_TRIGGER, default=AMBIENT_TRIGGER_TIME): vol.In(AMBIENT_TRIGGERS),
+    # Transition / fade time in seconds (0 = instant)
+    vol.Optional(CONF_TRANSITION_TIME, default=DEFAULT_TRANSITION_TIME): vol.Coerce(float),
+    # Favorites: list of scene entity IDs (activated by service or multi-tap)
+    vol.Optional(CONF_FAVORITES): vol.All(cv.ensure_list, [cv.entity_id]),
+    # Multi-tap button configuration
+    vol.Optional(CONF_MULTI_TAP_ENABLED, default=False): cv.boolean,
+    vol.Optional(CONF_DOUBLE_TAP_ACTION, default="next_scene"): vol.In(TAP_ACTIONS),
+    vol.Optional(CONF_TRIPLE_TAP_ACTION, default="favorite_1"): vol.In(TAP_ACTIONS),
 }
 
 _ADD_ZONE_SCHEMA = vol.Schema(
@@ -139,6 +155,13 @@ _ACTIVATE_SCENE_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_ZONE_ID): cv.string,
         vol.Required("scene_id"): cv.entity_id,
+    }
+)
+
+_ACTIVATE_FAVORITE_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_ZONE_ID): cv.string,
+        vol.Optional("index", default=0): vol.All(vol.Coerce(int), vol.Range(min=0, max=4)),
     }
 )
 
@@ -248,6 +271,11 @@ def _register_services(hass: HomeAssistant, coordinator: ILCCoordinator, entry: 
         if zone:
             await zone.async_activate_scene(call.data["scene_id"])
 
+    async def _activate_favorite(call: ServiceCall) -> None:
+        zone = coordinator.get_zone(call.data[CONF_ZONE_ID])
+        if zone:
+            await zone.async_activate_favorite(call.data.get("index", 0))
+
     async def _set_system_mode(call: ServiceCall) -> None:
         await coordinator.async_set_system_mode(call.data["mode"])
 
@@ -275,6 +303,7 @@ def _register_services(hass: HomeAssistant, coordinator: ILCCoordinator, entry: 
         SERVICE_TURN_OFF_ZONE: (_turn_off_zone, _ZONE_ID_SCHEMA),
         SERVICE_TOGGLE_ZONE: (_toggle_zone, _ZONE_ID_SCHEMA),
         SERVICE_ACTIVATE_SCENE: (_activate_scene, _ACTIVATE_SCENE_SCHEMA),
+        SERVICE_ACTIVATE_FAVORITE: (_activate_favorite, _ACTIVATE_FAVORITE_SCHEMA),
         SERVICE_SET_SYSTEM_MODE: (_set_system_mode, _SYSTEM_MODE_SCHEMA),
         SERVICE_RELOAD: (_reload, vol.Schema({})),
         SERVICE_EXPORT_CONFIG: (_export_config, vol.Schema({})),
@@ -297,6 +326,7 @@ def _unregister_services(hass: HomeAssistant, entry_id: str) -> None:
         SERVICE_TURN_OFF_ZONE,
         SERVICE_TOGGLE_ZONE,
         SERVICE_ACTIVATE_SCENE,
+        SERVICE_ACTIVATE_FAVORITE,
         SERVICE_SET_SYSTEM_MODE,
         SERVICE_RELOAD,
         SERVICE_EXPORT_CONFIG,
