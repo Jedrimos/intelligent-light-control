@@ -35,15 +35,25 @@
         "description": "Schritt 1 von 2: Grundkonfiguration der Zone",
         "data": {
           "name": "Zonenname",
-          "lights": "Lichter",
-          "motion_sensors": "Bewegungssensoren",
+          "lights": "Lichter (alle Leuchten der Zone)",
+          "motion_sensors": "Bewegungssensoren (PIR)",
           "no_motion_wait": "Wartezeit nach letzter Bewegung (Sekunden)",
+          "presence_sensors": "Präsenzsensoren (mmWave, Radar, …)",
+          "media_players": "Media Player (TV, Lautsprecher) – zählen als Präsenz",
+          "series_switches": "Serienschalter – Schalter (Position 1, 2, …)",
+          "series_lights": "Serienschalter – Leuchten (selbe Reihenfolge!)",
+          "switches": "Globale Schalter (steuern alle Leuchten der Zone)",
+          "buttons": "Globale Taster (steuern alle Leuchten der Zone)",
+          "multi_tap_enabled": "Multi-Tap aktivieren (Doppel-/Dreifachklick)",
+          "double_tap_action": "Doppelklick-Aktion",
+          "triple_tap_action": "Dreifachklick-Aktion",
+          "transition_time": "Übergangszeit beim Szenenwechsel (Sekunden)",
           "manual_override_duration": "Manueller Override Dauer (Sekunden, 0 = unbegrenzt)"
         }
       },
       "add_zone_scenes": {
         "title": "Zone hinzufügen – Szenen & Steuerung",
-        "description": "Schritt 2 von 2: Tageszeit-Szenen, Schalter, Taster und erweiterte Optionen",
+        "description": "Schritt 2 von 2: Tageszeit-Szenen und erweiterte Optionen",
         "data": {
           "scene_morning": "Szene Morgen",
           "time_scene_morning": "Startzeit Morgen",
@@ -54,16 +64,18 @@
           "scene_night": "Szene Nacht",
           "time_scene_night": "Startzeit Nacht",
           "scene_ambient": "Ambient-Szene (bei Kein-Bewegung)",
-          "time_scene_ambient_start": "Ambient-Zeitfenster Start",
-          "time_scene_ambient_end": "Ambient-Zeitfenster Ende",
+          "ambient_trigger": "Ambient-Auslöser (Zeitfenster oder Sonnenuntergang)",
+          "time_scene_ambient_start": "Ambient-Zeitfenster Start (nur bei 'time')",
+          "time_scene_ambient_end": "Ambient-Zeitfenster Ende (nur bei 'time')",
           "scene_no_motion": "Standard Kein-Bewegung-Szene",
+          "favorites": "Favoriten-Szenen (für Mehrfach-Tap oder Service)",
           "sun_elevation_check": "Sonnenhöhen-Limit (°, leer = immer aktiv)",
           "automation_blocker": "Automation-Blocker Entität",
           "automation_blocker_state": "Blocker aktiv wenn Zustand",
           "no_motion_blocker": "Kein-Bewegung-Blocker Entität",
           "no_motion_blocker_state": "Kein-Bewegung-Blocker aktiv wenn Zustand",
-          "switches": "Schalter (Toggle-Schalter)",
-          "buttons": "Taster (Momentschalter)"
+          "power_sensors": "Stromverbrauchssensoren (W) als Präsenz-Indikator",
+          "power_threshold": "Schwellwert Stromverbrauch (W)"
         }
       },
       "edit_zone": {
@@ -77,15 +89,25 @@
         "description": "Schritt 1 von 2: Grundkonfiguration",
         "data": {
           "name": "Zonenname",
-          "lights": "Lichter",
-          "motion_sensors": "Bewegungssensoren",
+          "lights": "Lichter (alle Leuchten der Zone)",
+          "motion_sensors": "Bewegungssensoren (PIR)",
           "no_motion_wait": "Wartezeit nach letzter Bewegung (Sekunden)",
+          "presence_sensors": "Präsenzsensoren (mmWave, Radar, …)",
+          "media_players": "Media Player (TV, Lautsprecher) – zählen als Präsenz",
+          "series_switches": "Serienschalter – Schalter (Position 1, 2, …)",
+          "series_lights": "Serienschalter – Leuchten (selbe Reihenfolge!)",
+          "switches": "Globale Schalter (steuern alle Leuchten der Zone)",
+          "buttons": "Globale Taster (steuern alle Leuchten der Zone)",
+          "multi_tap_enabled": "Multi-Tap aktivieren (Doppel-/Dreifachklick)",
+          "double_tap_action": "Doppelklick-Aktion",
+          "triple_tap_action": "Dreifachklick-Aktion",
+          "transition_time": "Übergangszeit beim Szenenwechsel (Sekunden)",
           "manual_override_duration": "Manueller Override Dauer (Sekunden, 0 = unbegrenzt)"
         }
       },
       "edit_zone_scenes": {
         "title": "Zone bearbeiten – Szenen & Steuerung",
-        "description": "Schritt 2 von 2: Tageszeit-Szenen, Schalter, Taster und erweiterte Optionen",
+        "description": "Schritt 2 von 2: Tageszeit-Szenen und erweiterte Optionen",
         "data": {
           "scene_morning": "Szene Morgen",
           "time_scene_morning": "Startzeit Morgen",
@@ -96,16 +118,18 @@
           "scene_night": "Szene Nacht",
           "time_scene_night": "Startzeit Nacht",
           "scene_ambient": "Ambient-Szene (bei Kein-Bewegung)",
-          "time_scene_ambient_start": "Ambient-Zeitfenster Start",
-          "time_scene_ambient_end": "Ambient-Zeitfenster Ende",
+          "ambient_trigger": "Ambient-Auslöser (Zeitfenster oder Sonnenuntergang)",
+          "time_scene_ambient_start": "Ambient-Zeitfenster Start (nur bei 'time')",
+          "time_scene_ambient_end": "Ambient-Zeitfenster Ende (nur bei 'time')",
           "scene_no_motion": "Standard Kein-Bewegung-Szene",
+          "favorites": "Favoriten-Szenen (für Mehrfach-Tap oder Service)",
           "sun_elevation_check": "Sonnenhöhen-Limit (°, leer = immer aktiv)",
           "automation_blocker": "Automation-Blocker Entität",
           "automation_blocker_state": "Blocker aktiv wenn Zustand",
           "no_motion_blocker": "Kein-Bewegung-Blocker Entität",
           "no_motion_blocker_state": "Kein-Bewegung-Blocker aktiv wenn Zustand",
-          "switches": "Schalter (Toggle-Schalter)",
-          "buttons": "Taster (Momentschalter)"
+          "power_sensors": "Stromverbrauchssensoren (W) als Präsenz-Indikator",
+          "power_threshold": "Schwellwert Stromverbrauch (W)"
         }
       },
       "remove_zone": {
@@ -114,6 +138,24 @@
         "data": {
           "zone_id": "Welche Zone möchtest du entfernen?"
         }
+      }
+    }
+  },
+  "selector": {
+    "ambient_trigger": {
+      "options": {
+        "time": "Festes Zeitfenster",
+        "sun": "Sonnenuntergang / Nacht (automatisch)"
+      }
+    },
+    "tap_action": {
+      "options": {
+        "toggle": "Ein/Aus (Standard)",
+        "next_scene": "Nächste Tageszeit-Szene",
+        "favorite_1": "Favorit 1",
+        "favorite_2": "Favorit 2",
+        "favorite_3": "Favorit 3",
+        "all_off": "Alle aus"
       }
     }
   },
