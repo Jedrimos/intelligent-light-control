@@ -191,7 +191,7 @@ class ZoneController:
         self._mode = value
         if value != MODE_MANUAL:
             self._cancel_manual_override_timer()
-        self.coordinator.async_update_listeners()
+        self.coordinator.async_notify_zones_updated()
 
     @property
     def blocked(self) -> bool:
@@ -200,7 +200,7 @@ class ZoneController:
     @blocked.setter
     def blocked(self, value: bool) -> None:
         self._blocked = value
-        self.coordinator.async_update_listeners()
+        self.coordinator.async_notify_zones_updated()
 
     @property
     def no_motion_wait(self) -> int:
@@ -241,15 +241,17 @@ class ZoneController:
 
     async def async_turn_on(self) -> None:
         self._mode = MODE_MANUAL
+        self._cancel_no_motion_timer()
         self._schedule_manual_override_expiry()
         await self._turn_on_lights()
-        self.coordinator.async_update_listeners()
+        self.coordinator.async_notify_zones_updated()
 
     async def async_turn_off(self) -> None:
         self._mode = MODE_MANUAL
+        self._cancel_no_motion_timer()
         self._schedule_manual_override_expiry()
         await self._turn_off_lights()
-        self.coordinator.async_update_listeners()
+        self.coordinator.async_notify_zones_updated()
 
     async def async_toggle(self) -> None:
         if self._lights_on:
@@ -259,9 +261,10 @@ class ZoneController:
 
     async def async_activate_scene(self, scene_id: str) -> None:
         self._mode = MODE_MANUAL
+        self._cancel_no_motion_timer()
         self._schedule_manual_override_expiry()
         await self._call_scene(scene_id)
-        self.coordinator.async_update_listeners()
+        self.coordinator.async_notify_zones_updated()
 
     async def async_activate_favorite(self, index: int) -> None:
         """Activate a saved favorite scene by index (0-based)."""
@@ -276,7 +279,7 @@ class ZoneController:
             self._cancel_no_motion_timer()
             self._schedule_manual_override_expiry()
             await self._call_scene(scene_id)
-            self.coordinator.async_update_listeners()
+            self.coordinator.async_notify_zones_updated()
 
     # ------------------------------------------------------------------
     # Listener registration
@@ -328,7 +331,7 @@ class ZoneController:
             self._mode = MODE_AUTO
 
         await self._activate_time_of_day_scene()
-        self.coordinator.async_update_listeners()
+        self.coordinator.async_notify_zones_updated()
 
     def _start_no_motion_timer(self) -> None:
         self._motion_detected = False
@@ -364,19 +367,19 @@ class ZoneController:
         ambient = self._config.get(CONF_SCENE_AMBIENT)
         if ambient and ambient != SCENE_NONE and self._is_ambient_active():
             await self._call_scene(ambient)
-            self.coordinator.async_update_listeners()
+            self.coordinator.async_notify_zones_updated()
             return
 
         # Default no-motion scene
         no_motion_scene = self._config.get(CONF_SCENE_NO_MOTION)
         if no_motion_scene and no_motion_scene != SCENE_NONE:
             await self._call_scene(no_motion_scene)
-            self.coordinator.async_update_listeners()
+            self.coordinator.async_notify_zones_updated()
             return
 
         # Fallback: turn off
         await self._turn_off_lights()
-        self.coordinator.async_update_listeners()
+        self.coordinator.async_notify_zones_updated()
 
     # ------------------------------------------------------------------
     # Presence detection
@@ -459,7 +462,7 @@ class ZoneController:
             await self._turn_off_lights()
         else:
             await self._activate_time_of_day_scene()
-        self.coordinator.async_update_listeners()
+        self.coordinator.async_notify_zones_updated()
 
     # ------------------------------------------------------------------
     # Button / Taster logic (with optional multi-tap)
@@ -525,7 +528,7 @@ class ZoneController:
         elif action == TAP_ACTION_ALL_OFF:
             await self._turn_off_lights()
 
-        self.coordinator.async_update_listeners()
+        self.coordinator.async_notify_zones_updated()
 
     async def _activate_next_tod_scene(self) -> None:
         """Cycle to the next time-of-day scene (wraps around)."""
@@ -570,7 +573,7 @@ class ZoneController:
             await self._turn_off_lights()
         else:
             await self._activate_time_of_day_scene()
-        self.coordinator.async_update_listeners()
+        self.coordinator.async_notify_zones_updated()
 
     # ------------------------------------------------------------------
     # Serienschalter – each switch controls its paired light
@@ -622,7 +625,7 @@ class ZoneController:
             self._lights_on = True
 
         self._active_scene = None
-        self.coordinator.async_update_listeners()
+        self.coordinator.async_notify_zones_updated()
 
     # ------------------------------------------------------------------
     # Manual override timer
@@ -649,7 +652,7 @@ class ZoneController:
         self._manual_override_cancel = None
         if self._mode == MODE_MANUAL:
             self._mode = MODE_AUTO
-            self.coordinator.async_update_listeners()
+            self.coordinator.async_notify_zones_updated()
 
     # ------------------------------------------------------------------
     # Scene / light helpers (all use transition time)

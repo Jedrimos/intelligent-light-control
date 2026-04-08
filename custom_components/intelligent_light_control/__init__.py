@@ -5,6 +5,7 @@ import json
 import logging
 
 import voluptuous as vol
+from homeassistant.components import frontend
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
@@ -173,9 +174,39 @@ _SYSTEM_MODE_SCHEMA = vol.Schema({vol.Required("mode"): vol.In(SYSTEM_MODES)})
 # ---------------------------------------------------------------------------
 
 
+_PANEL_STATIC_URL = "/intelligent_light_control_panel"
+
+
 async def async_setup(hass: HomeAssistant, config: dict) -> bool:
     hass.data.setdefault(DOMAIN, {})
     return True
+
+
+async def _async_register_panel(hass: HomeAssistant) -> None:
+    """Register the ILC sidebar panel (once per HA instance)."""
+    if hass.data.get(f"{DOMAIN}_panel_registered"):
+        return
+    hass.data[f"{DOMAIN}_panel_registered"] = True
+
+    hass.http.register_static_path(
+        _PANEL_STATIC_URL,
+        hass.config.path("custom_components/intelligent_light_control/www"),
+        cache_headers=False,
+    )
+    frontend.async_register_built_in_panel(
+        hass,
+        component_name="custom",
+        sidebar_title="Light Control",
+        sidebar_icon="mdi:lightbulb-group",
+        frontend_url_path="intelligent-light-control",
+        config={
+            "_panel_custom": {
+                "name": "ilc-panel",
+                "module_url": f"{_PANEL_STATIC_URL}/panel.js",
+            },
+        },
+        require_admin=False,
+    )
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -191,6 +222,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     _register_services(hass, coordinator, entry)
+    await _async_register_panel(hass)
 
     entry.async_on_unload(entry.add_update_listener(_async_entry_updated))
     return True
@@ -206,6 +238,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id, None)
         _unregister_services(hass, entry.entry_id)
+        # Clear panel registration flag when the last entry is removed so a
+        # subsequent re-setup re-registers the panel correctly.
+        if not hass.data.get(DOMAIN):
+            hass.data.pop(f"{DOMAIN}_panel_registered", None)
 
     return unloaded
 

@@ -9,6 +9,8 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 
+from homeassistant.core import callback
+
 from .const import (
     CONF_ZONE_ID,
     CONF_ZONE_NAME,
@@ -139,8 +141,8 @@ class ILCCoordinator(DataUpdateCoordinator):
     # DataUpdateCoordinator override
     # ------------------------------------------------------------------
 
-    async def _async_update_data(self):
-        """Return a snapshot of all zone states (used by entities)."""
+    def _compute_snapshot(self) -> dict:
+        """Build a fresh data snapshot from all zone controllers (pure, no I/O)."""
         return {
             zone_id: {
                 "state": zone.zone_state,
@@ -152,3 +154,18 @@ class ILCCoordinator(DataUpdateCoordinator):
             }
             for zone_id, zone in self._zones.items()
         }
+
+    async def _async_update_data(self):
+        """DataUpdateCoordinator hook – returns a fresh snapshot."""
+        return self._compute_snapshot()
+
+    @callback
+    def async_notify_zones_updated(self) -> None:
+        """Refresh the data snapshot immediately and notify all entity listeners.
+
+        Zone controllers must call this instead of async_update_listeners() so
+        that entities always read up-to-date state (coordinator.data is stale
+        until explicitly refreshed).
+        """
+        self.data = self._compute_snapshot()
+        self.async_update_listeners()

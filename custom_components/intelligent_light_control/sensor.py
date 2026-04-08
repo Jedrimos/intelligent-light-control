@@ -14,6 +14,7 @@ from .const import (
     ATTR_LIGHTS_ON,
     ATTR_MODE,
     ATTR_MOTION_DETECTED,
+    ATTR_ZONE_NAME,
     CONF_ZONE_NAME,
     DOMAIN,
     VERSION,
@@ -100,6 +101,7 @@ class ILCZoneStatusSensor(CoordinatorEntity, SensorEntity):
     def extra_state_attributes(self) -> dict:
         attrs = self._zone_data.get("attributes", {})
         attrs["zone_id"] = self.zone_id
+        attrs[ATTR_ZONE_NAME] = self._zone_data.get("name", self.zone_id)
         return attrs
 
     @property
