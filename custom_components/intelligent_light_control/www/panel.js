@@ -2,6 +2,8 @@
 
 const ILC_DOMAIN = "intelligent_light_control";
 
+const ILC_VERSION = "1.1.0";
+
 const STATE_LABELS = {
   auto_on:    "Auto – an",
   auto_off:   "Auto – aus",
@@ -241,6 +243,25 @@ const CSS = `
   font-weight: 700;
 }
 
+/* ── Brightness slider ── */
+.brightness-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.brightness-row input[type=range] {
+  flex: 1;
+  height: 4px;
+  accent-color: var(--primary-color, #03a9f4);
+  cursor: pointer;
+}
+.brightness-label {
+  font-size: .75rem;
+  color: var(--secondary-text-color, #888);
+  min-width: 36px;
+  text-align: right;
+}
+
 /* ── Confirm overlay ── */
 .confirm-row {
   display: flex;
@@ -323,6 +344,7 @@ class ILCPanel extends HTMLElement {
         activeScene:      a.active_scene || null,
         motionDetected:   !!a.motion_detected,
         presenceDetected: !!a.presence_detected,
+        brightnessPct:    a.brightness_pct != null ? a.brightness_pct : 100,
       });
     }
     zones.sort((a, b) => a.zoneName.localeCompare(b.zoneName));
@@ -434,6 +456,12 @@ class ILCPanel extends HTMLElement {
           <button class="btn"         data-action="off"    data-zone="${this._esc(z.zoneId)}">Aus</button>
           <button class="btn"         data-action="toggle" data-zone="${this._esc(z.zoneId)}">Toggle</button>
         </div>
+        <div class="brightness-row">
+          <input type="range" min="0" max="100" step="5"
+            value="${z.brightnessPct}"
+            data-action="brightness" data-zone="${this._esc(z.zoneId)}">
+          <span class="brightness-label">${z.brightnessPct}%</span>
+        </div>
         <div class="mode-pills">${modeRow}</div>
         ${deleteRow}
       </div>`;
@@ -483,11 +511,28 @@ class ILCPanel extends HTMLElement {
       ${content}`;
 
     this.shadowRoot.querySelectorAll("[data-action]").forEach((el) => {
-      el.addEventListener("click", (e) => {
-        e.stopPropagation();
-        this._handleClick(el);
-      });
+      if (el.type === "range") {
+        el.addEventListener("change", (e) => {
+          e.stopPropagation();
+          this._handleBrightness(el);
+        });
+        // Live label update while dragging (no service call yet)
+        el.addEventListener("input", (e) => {
+          const label = el.closest(".brightness-row").querySelector(".brightness-label");
+          if (label) label.textContent = el.value + "%";
+        });
+      } else {
+        el.addEventListener("click", (e) => {
+          e.stopPropagation();
+          this._handleClick(el);
+        });
+      }
     });
+  }
+
+  _handleBrightness(el) {
+    const pct = parseInt(el.value, 10);
+    this._call("set_brightness", { zone_id: el.dataset.zone, brightness_pct: pct });
   }
 
   async _handleClick(el) {

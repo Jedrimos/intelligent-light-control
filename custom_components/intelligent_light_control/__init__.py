@@ -65,6 +65,7 @@ from .const import (
     SERVICE_EXPORT_CONFIG,
     SERVICE_RELOAD,
     SERVICE_REMOVE_ZONE,
+    SERVICE_SET_BRIGHTNESS,
     SERVICE_SET_SYSTEM_MODE,
     SERVICE_SET_ZONE_MODE,
     SERVICE_TOGGLE_ZONE,
@@ -169,6 +170,13 @@ _ACTIVATE_FAVORITE_SCHEMA = vol.Schema(
 
 _SYSTEM_MODE_SCHEMA = vol.Schema({vol.Required("mode"): vol.In(SYSTEM_MODES)})
 
+_SET_BRIGHTNESS_SCHEMA = vol.Schema(
+    {
+        vol.Required(CONF_ZONE_ID): cv.string,
+        vol.Required("brightness_pct"): vol.All(vol.Coerce(int), vol.Range(min=0, max=100)),
+    }
+)
+
 
 # ---------------------------------------------------------------------------
 # Integration setup
@@ -184,32 +192,44 @@ async def async_setup(hass: HomeAssistant, config: dict) -> bool:
 
 
 async def _async_register_panel(hass: HomeAssistant) -> None:
-    """Register the ILC sidebar panel (once per HA instance)."""
+    """Register the ILC sidebar panel (once per HA instance).
+
+    Static path and panel registrations persist in HA memory even across
+    config-entry reloads, so we guard with a flag and silently ignore any
+    'already registered' errors on subsequent calls.
+    """
     if hass.data.get(f"{DOMAIN}_panel_registered"):
         return
     hass.data[f"{DOMAIN}_panel_registered"] = True
 
-    await hass.http.async_register_static_paths([
-        StaticPathConfig(
-            _PANEL_STATIC_URL,
-            hass.config.path("custom_components/intelligent_light_control/www"),
-            cache_headers=False,
-        )
-    ])
-    frontend.async_register_built_in_panel(
-        hass,
-        component_name="custom",
-        sidebar_title="Light Control",
-        sidebar_icon="mdi:lightbulb-group",
-        frontend_url_path="intelligent-light-control",
-        config={
-            "_panel_custom": {
-                "name": "ilc-panel",
-                "module_url": f"{_PANEL_STATIC_URL}/panel.js",
+    try:
+        await hass.http.async_register_static_paths([
+            StaticPathConfig(
+                _PANEL_STATIC_URL,
+                hass.config.path("custom_components/intelligent_light_control/www"),
+                cache_headers=False,
+            )
+        ])
+    except Exception:  # path already registered on a previous (re)load
+        pass
+
+    try:
+        frontend.async_register_built_in_panel(
+            hass,
+            component_name="custom",
+            sidebar_title="Light Control",
+            sidebar_icon="mdi:lightbulb-group",
+            frontend_url_path="intelligent-light-control",
+            config={
+                "_panel_custom": {
+                    "name": "ilc-panel",
+                    "module_url": f"{_PANEL_STATIC_URL}/panel.js",
+                },
             },
-        },
-        require_admin=False,
-    )
+            require_admin=False,
+        )
+    except Exception:  # panel already registered
+        pass
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
@@ -241,10 +261,10 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     if unloaded:
         hass.data[DOMAIN].pop(entry.entry_id, None)
         _unregister_services(hass, entry.entry_id)
-        # Clear panel registration flag when the last entry is removed so a
-        # subsequent re-setup re-registers the panel correctly.
-        if not hass.data.get(DOMAIN):
-            hass.data.pop(f"{DOMAIN}_panel_registered", None)
+        # NOTE: do NOT clear the panel_registered flag here.
+        # Static paths and frontend panels are registered in HA's own data
+        # structures and persist across entry reloads. Clearing the flag
+        # would cause a duplicate-registration error on the next setup call.
 
     return unloaded
 
@@ -315,6 +335,11 @@ def _register_services(hass: HomeAssistant, coordinator: ILCCoordinator, entry: 
         if zone:
             await zone.async_activate_favorite(call.data.get("index", 0))
 
+    async def _set_brightness(call: ServiceCall) -> None:
+        zone = coordinator.get_zone(call.data[CONF_ZONE_ID])
+        if zone:
+            await zone.async_set_brightness(call.data["brightness_pct"])
+
     async def _set_system_mode(call: ServiceCall) -> None:
         await coordinator.async_set_system_mode(call.data["mode"])
 
@@ -343,6 +368,7 @@ def _register_services(hass: HomeAssistant, coordinator: ILCCoordinator, entry: 
         SERVICE_TOGGLE_ZONE: (_toggle_zone, _ZONE_ID_SCHEMA),
         SERVICE_ACTIVATE_SCENE: (_activate_scene, _ACTIVATE_SCENE_SCHEMA),
         SERVICE_ACTIVATE_FAVORITE: (_activate_favorite, _ACTIVATE_FAVORITE_SCHEMA),
+        SERVICE_SET_BRIGHTNESS: (_set_brightness, _SET_BRIGHTNESS_SCHEMA),
         SERVICE_SET_SYSTEM_MODE: (_set_system_mode, _SYSTEM_MODE_SCHEMA),
         SERVICE_RELOAD: (_reload, vol.Schema({})),
         SERVICE_EXPORT_CONFIG: (_export_config, vol.Schema({})),
@@ -366,6 +392,7 @@ def _unregister_services(hass: HomeAssistant, entry_id: str) -> None:
         SERVICE_TOGGLE_ZONE,
         SERVICE_ACTIVATE_SCENE,
         SERVICE_ACTIVATE_FAVORITE,
+        SERVICE_SET_BRIGHTNESS,
         SERVICE_SET_SYSTEM_MODE,
         SERVICE_RELOAD,
         SERVICE_EXPORT_CONFIG,

@@ -14,6 +14,7 @@ from .const import (
     AMBIENT_TRIGGER_SUN,
     AMBIENT_TRIGGER_TIME,
     ATTR_ACTIVE_SCENE,
+    ATTR_BRIGHTNESS_PCT,
     ATTR_LAST_MOTION,
     ATTR_LIGHTS_ON,
     ATTR_MODE,
@@ -132,6 +133,7 @@ class ZoneController:
         self._motion_detected: bool = False
         self._last_motion: datetime | None = None
         self._blocked: bool = False
+        self._brightness_pct: int = 100
 
         self._no_motion_cancel: asyncio.TimerHandle | None = None
         self._manual_override_cancel: asyncio.TimerHandle | None = None
@@ -233,6 +235,7 @@ class ZoneController:
             ATTR_MOTION_DETECTED: self._motion_detected,
             ATTR_PRESENCE_DETECTED: self._is_presence_detected(),
             ATTR_LAST_MOTION: self._last_motion.isoformat() if self._last_motion else None,
+            ATTR_BRIGHTNESS_PCT: self._brightness_pct,
         }
 
     # ------------------------------------------------------------------
@@ -264,6 +267,30 @@ class ZoneController:
         self._cancel_no_motion_timer()
         self._schedule_manual_override_expiry()
         await self._call_scene(scene_id)
+        self.coordinator.async_notify_zones_updated()
+
+    async def async_set_brightness(self, brightness_pct: int) -> None:
+        """Set brightness (0-100) on all zone lights. Enters manual mode."""
+        if self._mode == MODE_OFF:
+            return
+        self._mode = MODE_MANUAL
+        self._cancel_no_motion_timer()
+        self._schedule_manual_override_expiry()
+        lights = list(self._config.get(CONF_LIGHTS, [])) + list(self._config.get(CONF_SERIES_LIGHTS, []))
+        if not lights:
+            return
+        pct = max(0, min(100, brightness_pct))
+        self._brightness_pct = pct
+        if pct == 0:
+            await self._turn_off_lights()
+        else:
+            self._lights_on = True
+            self._active_scene = None
+            svc_data: dict[str, Any] = {"entity_id": lights, "brightness_pct": pct}
+            transition = self._get_transition()
+            if transition > 0:
+                svc_data["transition"] = transition
+            await self.hass.services.async_call("light", "turn_on", svc_data, blocking=False)
         self.coordinator.async_notify_zones_updated()
 
     async def async_activate_favorite(self, index: int) -> None:
@@ -707,6 +734,8 @@ class ZoneController:
         self._lights_on = True
         self._active_scene = None
         svc_data: dict[str, Any] = {"entity_id": lights}
+        if self._brightness_pct < 100:
+            svc_data["brightness_pct"] = self._brightness_pct
         transition = self._get_transition()
         if transition > 0:
             svc_data["transition"] = transition

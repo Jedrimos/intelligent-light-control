@@ -31,29 +31,40 @@
         }
       },
       "add_zone": {
-        "title": "Zone hinzufügen – Basis",
-        "description": "Schritt 1 von 2: Grundkonfiguration der Zone",
+        "title": "Zone hinzufügen",
+        "description": "Alle Felder außer Name und Lichter sind optional. Szenen sind nicht nötig – die Zone schaltet Lichter automatisch ein/aus.",
         "data": {
           "name": "Zonenname",
           "lights": "Lichter (alle Leuchten der Zone)",
           "motion_sensors": "Bewegungssensoren (PIR)",
-          "no_motion_wait": "Wartezeit nach letzter Bewegung (Sekunden)",
+          "no_motion_wait": "Wartezeit nach letzter Bewegung (s)",
           "presence_sensors": "Präsenzsensoren (mmWave, Radar, …)",
           "media_players": "Media Player (TV, Lautsprecher) – zählen als Präsenz",
-          "series_switches": "Serienschalter – Schalter (Position 1, 2, …)",
-          "series_lights": "Serienschalter – Leuchten (selbe Reihenfolge!)",
-          "switches": "Globale Schalter (steuern alle Leuchten der Zone)",
-          "buttons": "Globale Taster (steuern alle Leuchten der Zone)",
+          "power_sensors": "Stromverbrauchssensoren (W) als Präsenz-Indikator",
+          "power_threshold": "Schwellwert Stromverbrauch (W)",
+          "switches": "Schalter (steuern alle Leuchten der Zone)",
+          "buttons": "Taster (steuern alle Leuchten der Zone)",
           "multi_tap_enabled": "Multi-Tap aktivieren (Doppel-/Dreifachklick)",
           "double_tap_action": "Doppelklick-Aktion",
           "triple_tap_action": "Dreifachklick-Aktion",
-          "transition_time": "Übergangszeit beim Szenenwechsel (Sekunden)",
-          "manual_override_duration": "Manueller Override Dauer (Sekunden, 0 = unbegrenzt)"
+          "series_switches": "Serienschalter – Schalter (Position 1, 2, …)",
+          "series_lights": "Serienschalter – Leuchten (selbe Reihenfolge!)",
+          "ambient_trigger": "Ambient-Auslöser",
+          "time_scene_ambient_start": "Ambient-Zeitfenster Start",
+          "time_scene_ambient_end": "Ambient-Zeitfenster Ende",
+          "sun_elevation_check": "Sonnenhöhen-Limit (°, leer = immer aktiv)",
+          "automation_blocker": "Automation-Blocker Entität",
+          "automation_blocker_state": "Blocker aktiv wenn Zustand",
+          "no_motion_blocker": "Kein-Bewegung-Blocker Entität",
+          "no_motion_blocker_state": "Kein-Bewegung-Blocker aktiv wenn Zustand",
+          "transition_time": "Übergangszeit beim Ein-/Ausschalten (s)",
+          "manual_override_duration": "Manueller Override Dauer (s, 0 = unbegrenzt)",
+          "use_scenes": "HA-Szenen konfigurieren (Morgen / Tag / Abend / Nacht)"
         }
       },
       "add_zone_scenes": {
-        "title": "Zone hinzufügen – Szenen & Steuerung",
-        "description": "Schritt 2 von 2: Tageszeit-Szenen und erweiterte Optionen",
+        "title": "Zone hinzufügen – Szenen",
+        "description": "Optional: HA-Szenen für verschiedene Tageszeiten. Alle Felder leer lassen = einfaches Ein/Aus ohne Szenen.",
         "data": {
           "scene_morning": "Szene Morgen",
           "time_scene_morning": "Startzeit Morgen",
@@ -63,19 +74,9 @@
           "time_scene_evening": "Startzeit Abend",
           "scene_night": "Szene Nacht",
           "time_scene_night": "Startzeit Nacht",
-          "scene_ambient": "Ambient-Szene (bei Kein-Bewegung)",
-          "ambient_trigger": "Ambient-Auslöser (Zeitfenster oder Sonnenuntergang)",
-          "time_scene_ambient_start": "Ambient-Zeitfenster Start (nur bei 'time')",
-          "time_scene_ambient_end": "Ambient-Zeitfenster Ende (nur bei 'time')",
+          "scene_ambient": "Ambient-Szene (bei Kein-Bewegung im Ambient-Zeitfenster)",
           "scene_no_motion": "Standard Kein-Bewegung-Szene",
-          "favorites": "Favoriten-Szenen (für Mehrfach-Tap oder Service)",
-          "sun_elevation_check": "Sonnenhöhen-Limit (°, leer = immer aktiv)",
-          "automation_blocker": "Automation-Blocker Entität",
-          "automation_blocker_state": "Blocker aktiv wenn Zustand",
-          "no_motion_blocker": "Kein-Bewegung-Blocker Entität",
-          "no_motion_blocker_state": "Kein-Bewegung-Blocker aktiv wenn Zustand",
-          "power_sensors": "Stromverbrauchssensoren (W) als Präsenz-Indikator",
-          "power_threshold": "Schwellwert Stromverbrauch (W)"
+          "favorites": "Favoriten-Szenen (für Mehrfach-Tap oder Service)"
         }
       },
       "edit_zone": {
@@ -85,29 +86,40 @@
         }
       },
       "edit_zone_basic": {
-        "title": "Zone bearbeiten – Basis",
-        "description": "Schritt 1 von 2: Grundkonfiguration",
+        "title": "Zone bearbeiten",
+        "description": "Alle Felder außer Name und Lichter sind optional.",
         "data": {
           "name": "Zonenname",
           "lights": "Lichter (alle Leuchten der Zone)",
           "motion_sensors": "Bewegungssensoren (PIR)",
-          "no_motion_wait": "Wartezeit nach letzter Bewegung (Sekunden)",
+          "no_motion_wait": "Wartezeit nach letzter Bewegung (s)",
           "presence_sensors": "Präsenzsensoren (mmWave, Radar, …)",
           "media_players": "Media Player (TV, Lautsprecher) – zählen als Präsenz",
-          "series_switches": "Serienschalter – Schalter (Position 1, 2, …)",
-          "series_lights": "Serienschalter – Leuchten (selbe Reihenfolge!)",
-          "switches": "Globale Schalter (steuern alle Leuchten der Zone)",
-          "buttons": "Globale Taster (steuern alle Leuchten der Zone)",
+          "power_sensors": "Stromverbrauchssensoren (W) als Präsenz-Indikator",
+          "power_threshold": "Schwellwert Stromverbrauch (W)",
+          "switches": "Schalter (steuern alle Leuchten der Zone)",
+          "buttons": "Taster (steuern alle Leuchten der Zone)",
           "multi_tap_enabled": "Multi-Tap aktivieren (Doppel-/Dreifachklick)",
           "double_tap_action": "Doppelklick-Aktion",
           "triple_tap_action": "Dreifachklick-Aktion",
-          "transition_time": "Übergangszeit beim Szenenwechsel (Sekunden)",
-          "manual_override_duration": "Manueller Override Dauer (Sekunden, 0 = unbegrenzt)"
+          "series_switches": "Serienschalter – Schalter (Position 1, 2, …)",
+          "series_lights": "Serienschalter – Leuchten (selbe Reihenfolge!)",
+          "ambient_trigger": "Ambient-Auslöser",
+          "time_scene_ambient_start": "Ambient-Zeitfenster Start",
+          "time_scene_ambient_end": "Ambient-Zeitfenster Ende",
+          "sun_elevation_check": "Sonnenhöhen-Limit (°, leer = immer aktiv)",
+          "automation_blocker": "Automation-Blocker Entität",
+          "automation_blocker_state": "Blocker aktiv wenn Zustand",
+          "no_motion_blocker": "Kein-Bewegung-Blocker Entität",
+          "no_motion_blocker_state": "Kein-Bewegung-Blocker aktiv wenn Zustand",
+          "transition_time": "Übergangszeit beim Ein-/Ausschalten (s)",
+          "manual_override_duration": "Manueller Override Dauer (s, 0 = unbegrenzt)",
+          "use_scenes": "HA-Szenen konfigurieren (Morgen / Tag / Abend / Nacht)"
         }
       },
       "edit_zone_scenes": {
-        "title": "Zone bearbeiten – Szenen & Steuerung",
-        "description": "Schritt 2 von 2: Tageszeit-Szenen und erweiterte Optionen",
+        "title": "Zone bearbeiten – Szenen",
+        "description": "Optional: HA-Szenen für verschiedene Tageszeiten. Alle Felder leer lassen = einfaches Ein/Aus ohne Szenen.",
         "data": {
           "scene_morning": "Szene Morgen",
           "time_scene_morning": "Startzeit Morgen",
@@ -117,19 +129,9 @@
           "time_scene_evening": "Startzeit Abend",
           "scene_night": "Szene Nacht",
           "time_scene_night": "Startzeit Nacht",
-          "scene_ambient": "Ambient-Szene (bei Kein-Bewegung)",
-          "ambient_trigger": "Ambient-Auslöser (Zeitfenster oder Sonnenuntergang)",
-          "time_scene_ambient_start": "Ambient-Zeitfenster Start (nur bei 'time')",
-          "time_scene_ambient_end": "Ambient-Zeitfenster Ende (nur bei 'time')",
+          "scene_ambient": "Ambient-Szene (bei Kein-Bewegung im Ambient-Zeitfenster)",
           "scene_no_motion": "Standard Kein-Bewegung-Szene",
-          "favorites": "Favoriten-Szenen (für Mehrfach-Tap oder Service)",
-          "sun_elevation_check": "Sonnenhöhen-Limit (°, leer = immer aktiv)",
-          "automation_blocker": "Automation-Blocker Entität",
-          "automation_blocker_state": "Blocker aktiv wenn Zustand",
-          "no_motion_blocker": "Kein-Bewegung-Blocker Entität",
-          "no_motion_blocker_state": "Kein-Bewegung-Blocker aktiv wenn Zustand",
-          "power_sensors": "Stromverbrauchssensoren (W) als Präsenz-Indikator",
-          "power_threshold": "Schwellwert Stromverbrauch (W)"
+          "favorites": "Favoriten-Szenen (für Mehrfach-Tap oder Service)"
         }
       },
       "remove_zone": {
@@ -144,7 +146,7 @@
   "selector": {
     "ambient_trigger": {
       "options": {
-        "time": "Festes Zeitfenster",
+        "time": "Festes Zeitfenster (Start/Ende konfigurieren)",
         "sun": "Sonnenuntergang / Nacht (automatisch)"
       }
     },
