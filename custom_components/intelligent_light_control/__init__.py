@@ -6,6 +6,7 @@ import logging
 
 import voluptuous as vol
 from homeassistant.components import frontend
+from homeassistant.components.http import StaticPathConfig
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant, ServiceCall
 from homeassistant.helpers import config_validation as cv
@@ -188,11 +189,13 @@ async def _async_register_panel(hass: HomeAssistant) -> None:
         return
     hass.data[f"{DOMAIN}_panel_registered"] = True
 
-    hass.http.register_static_path(
-        _PANEL_STATIC_URL,
-        hass.config.path("custom_components/intelligent_light_control/www"),
-        cache_headers=False,
-    )
+    await hass.http.async_register_static_paths([
+        StaticPathConfig(
+            _PANEL_STATIC_URL,
+            hass.config.path("custom_components/intelligent_light_control/www"),
+            cache_headers=False,
+        )
+    ])
     frontend.async_register_built_in_panel(
         hass,
         component_name="custom",
