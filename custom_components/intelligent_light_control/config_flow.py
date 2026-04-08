@@ -400,32 +400,47 @@ def _zone_basic_schema(existing: dict | None = None) -> vol.Schema:
 def _zone_scenes_schema(existing: dict | None = None) -> vol.Schema:
     """Schema for zone scenes, controls, and advanced options (step 2)."""
     ex = existing or {}
+
+    def _scene(key: str):
+        """Optional scene entity selector – pre-fills current value for edit."""
+        val = ex.get(key)
+        if val:
+            return vol.Optional(key, description={"suggested_value": val})
+        return vol.Optional(key)
+
+    def _entity(key: str):
+        """Optional single-entity selector – pre-fills current value for edit."""
+        val = ex.get(key)
+        if val:
+            return vol.Optional(key, description={"suggested_value": val})
+        return vol.Optional(key)
+
     return vol.Schema(
         {
             # ---- Tageszeit-Szenen ----
-            vol.Optional(CONF_SCENE_MORNING, default=ex.get(CONF_SCENE_MORNING, "")): selector.EntitySelector(
+            _scene(CONF_SCENE_MORNING): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="scene")
             ),
             vol.Optional(CONF_TIME_MORNING, default=ex.get(CONF_TIME_MORNING, "06:00:00")): selector.TimeSelector(),
-            vol.Optional(CONF_SCENE_DAY, default=ex.get(CONF_SCENE_DAY, "")): selector.EntitySelector(
+            _scene(CONF_SCENE_DAY): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="scene")
             ),
             vol.Optional(CONF_TIME_DAY, default=ex.get(CONF_TIME_DAY, "09:00:00")): selector.TimeSelector(),
-            vol.Optional(CONF_SCENE_EVENING, default=ex.get(CONF_SCENE_EVENING, "")): selector.EntitySelector(
+            _scene(CONF_SCENE_EVENING): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="scene")
             ),
             vol.Optional(CONF_TIME_EVENING, default=ex.get(CONF_TIME_EVENING, "17:00:00")): selector.TimeSelector(),
-            vol.Optional(CONF_SCENE_NIGHT, default=ex.get(CONF_SCENE_NIGHT, "")): selector.EntitySelector(
+            _scene(CONF_SCENE_NIGHT): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="scene")
             ),
             vol.Optional(CONF_TIME_NIGHT, default=ex.get(CONF_TIME_NIGHT, "22:00:00")): selector.TimeSelector(),
             # ---- Ambient ----
-            vol.Optional(CONF_SCENE_AMBIENT, default=ex.get(CONF_SCENE_AMBIENT, "")): selector.EntitySelector(
+            _scene(CONF_SCENE_AMBIENT): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="scene")
             ),
             vol.Optional(CONF_TIME_AMBIENT_START, default=ex.get(CONF_TIME_AMBIENT_START, "00:00:00")): selector.TimeSelector(),
             vol.Optional(CONF_TIME_AMBIENT_END, default=ex.get(CONF_TIME_AMBIENT_END, "00:00:00")): selector.TimeSelector(),
-            vol.Optional(CONF_SCENE_NO_MOTION, default=ex.get(CONF_SCENE_NO_MOTION, "")): selector.EntitySelector(
+            _scene(CONF_SCENE_NO_MOTION): selector.EntitySelector(
                 selector.EntitySelectorConfig(domain="scene")
             ),
             # ---- Favoriten-Szenen (für Multi-Tap, Favorit-Service) ----
@@ -441,11 +456,11 @@ def _zone_scenes_schema(existing: dict | None = None) -> vol.Schema:
                 )
             ),
             # ---- Sonnenhöhe ----
-            vol.Optional(CONF_SUN_ELEVATION, default=ex.get(CONF_SUN_ELEVATION, None)): selector.NumberSelector(
+            vol.Optional(CONF_SUN_ELEVATION, description={"suggested_value": ex.get(CONF_SUN_ELEVATION)}): selector.NumberSelector(
                 selector.NumberSelectorConfig(min=-90, max=90, unit_of_measurement="°", mode=selector.NumberSelectorMode.BOX)
             ),
             # ---- Blocker ----
-            vol.Optional(CONF_AUTOMATION_BLOCKER, default=ex.get(CONF_AUTOMATION_BLOCKER, "")): selector.EntitySelector(
+            _entity(CONF_AUTOMATION_BLOCKER): selector.EntitySelector(
                 selector.EntitySelectorConfig()
             ),
             vol.Optional(
@@ -457,7 +472,7 @@ def _zone_scenes_schema(existing: dict | None = None) -> vol.Schema:
                     mode=selector.SelectSelectorMode.LIST,
                 )
             ),
-            vol.Optional(CONF_NO_MOTION_BLOCKER, default=ex.get(CONF_NO_MOTION_BLOCKER, "")): selector.EntitySelector(
+            _entity(CONF_NO_MOTION_BLOCKER): selector.EntitySelector(
                 selector.EntitySelectorConfig()
             ),
             vol.Optional(
