@@ -2,7 +2,7 @@
 from typing import Final
 
 DOMAIN: Final = "intelligent_light_control"
-VERSION: Final = "1.0.0"
+VERSION: Final = "1.0.0-alpha"
 
 # Platforms
 PLATFORMS: Final = ["sensor", "switch", "number", "select"]

@@ -1,7 +1,7 @@
 {
   "domain": "intelligent_light_control",
   "name": "Intelligent Light Control",
-  "version": "1.0.0",
+  "version": "1.0.0-alpha",
   "documentation": "https://github.com/Jedrimos/intelligent-light-control",
   "issue_tracker": "https://github.com/Jedrimos/intelligent-light-control/issues",
   "requirements": [],
