@@ -89,8 +89,12 @@ SERVICE_TOGGLE_ZONE: Final = "toggle_zone"
 SERVICE_ACTIVATE_SCENE: Final = "activate_scene"
 SERVICE_ACTIVATE_FAVORITE: Final = "activate_favorite"
 SERVICE_SET_SYSTEM_MODE: Final = "set_system_mode"
+SERVICE_SET_BRIGHTNESS: Final = "set_brightness"
 SERVICE_RELOAD: Final = "reload"
 SERVICE_EXPORT_CONFIG: Final = "export_config"
+
+# Brightness
+ATTR_BRIGHTNESS_PCT: Final = "brightness_pct"
 
 # Attributes exposed on entities
 ATTR_ZONE_ID: Final = "zone_id"
