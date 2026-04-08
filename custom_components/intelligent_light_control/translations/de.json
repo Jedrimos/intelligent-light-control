@@ -2,75 +2,133 @@
   "config": {
     "step": {
       "user": {
-        "title": "Set up Intelligent Light Control",
-        "description": "Enter a name for this instance. Zones are managed via services afterwards.",
+        "title": "Intelligent Light Control einrichten",
+        "description": "Gib einen Namen für diese Instanz ein. Zonen werden danach über die Konfigurationsoptionen verwaltet.",
         "data": {
           "name": "Name"
         }
       }
     },
     "abort": {
-      "already_configured": "This instance is already configured."
+      "already_configured": "Diese Instanz ist bereits konfiguriert."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Intelligent Light Control",
+        "menu_options": {
+          "add_zone": "Zone hinzufügen",
+          "edit_zone": "Zone bearbeiten",
+          "remove_zone": "Zone entfernen",
+          "global_settings": "Globale Einstellungen"
+        }
+      },
+      "global_settings": {
+        "title": "Globale Einstellungen",
+        "data": {
+          "system_mode": "Systemmodus"
+        }
+      },
+      "add_zone": {
+        "title": "Zone hinzufügen – Basis",
+        "description": "Schritt 1 von 2: Grundkonfiguration der Zone",
+        "data": {
+          "name": "Zonenname",
+          "lights": "Lichter",
+          "motion_sensors": "Bewegungssensoren",
+          "no_motion_wait": "Wartezeit nach letzter Bewegung (Sekunden)",
+          "manual_override_duration": "Manueller Override Dauer (Sekunden, 0 = unbegrenzt)"
+        }
+      },
+      "add_zone_scenes": {
+        "title": "Zone hinzufügen – Szenen & Steuerung",
+        "description": "Schritt 2 von 2: Tageszeit-Szenen, Schalter, Taster und erweiterte Optionen",
+        "data": {
+          "scene_morning": "Szene Morgen",
+          "time_scene_morning": "Startzeit Morgen",
+          "scene_day": "Szene Tag",
+          "time_scene_day": "Startzeit Tag",
+          "scene_evening": "Szene Abend",
+          "time_scene_evening": "Startzeit Abend",
+          "scene_night": "Szene Nacht",
+          "time_scene_night": "Startzeit Nacht",
+          "scene_ambient": "Ambient-Szene (bei Kein-Bewegung)",
+          "time_scene_ambient_start": "Ambient-Zeitfenster Start",
+          "time_scene_ambient_end": "Ambient-Zeitfenster Ende",
+          "scene_no_motion": "Standard Kein-Bewegung-Szene",
+          "sun_elevation_check": "Sonnenhöhen-Limit (°, leer = immer aktiv)",
+          "automation_blocker": "Automation-Blocker Entität",
+          "automation_blocker_state": "Blocker aktiv wenn Zustand",
+          "no_motion_blocker": "Kein-Bewegung-Blocker Entität",
+          "no_motion_blocker_state": "Kein-Bewegung-Blocker aktiv wenn Zustand",
+          "switches": "Schalter (Toggle-Schalter)",
+          "buttons": "Taster (Momentschalter)"
+        }
+      },
+      "edit_zone": {
+        "title": "Zone bearbeiten – Auswahl",
+        "data": {
+          "zone_id": "Welche Zone möchtest du bearbeiten?"
+        }
+      },
+      "edit_zone_basic": {
+        "title": "Zone bearbeiten – Basis",
+        "description": "Schritt 1 von 2: Grundkonfiguration",
+        "data": {
+          "name": "Zonenname",
+          "lights": "Lichter",
+          "motion_sensors": "Bewegungssensoren",
+          "no_motion_wait": "Wartezeit nach letzter Bewegung (Sekunden)",
+          "manual_override_duration": "Manueller Override Dauer (Sekunden, 0 = unbegrenzt)"
+        }
+      },
+      "edit_zone_scenes": {
+        "title": "Zone bearbeiten – Szenen & Steuerung",
+        "description": "Schritt 2 von 2: Tageszeit-Szenen, Schalter, Taster und erweiterte Optionen",
+        "data": {
+          "scene_morning": "Szene Morgen",
+          "time_scene_morning": "Startzeit Morgen",
+          "scene_day": "Szene Tag",
+          "time_scene_day": "Startzeit Tag",
+          "scene_evening": "Szene Abend",
+          "time_scene_evening": "Startzeit Abend",
+          "scene_night": "Szene Nacht",
+          "time_scene_night": "Startzeit Nacht",
+          "scene_ambient": "Ambient-Szene (bei Kein-Bewegung)",
+          "time_scene_ambient_start": "Ambient-Zeitfenster Start",
+          "time_scene_ambient_end": "Ambient-Zeitfenster Ende",
+          "scene_no_motion": "Standard Kein-Bewegung-Szene",
+          "sun_elevation_check": "Sonnenhöhen-Limit (°, leer = immer aktiv)",
+          "automation_blocker": "Automation-Blocker Entität",
+          "automation_blocker_state": "Blocker aktiv wenn Zustand",
+          "no_motion_blocker": "Kein-Bewegung-Blocker Entität",
+          "no_motion_blocker_state": "Kein-Bewegung-Blocker aktiv wenn Zustand",
+          "switches": "Schalter (Toggle-Schalter)",
+          "buttons": "Taster (Momentschalter)"
+        }
+      },
+      "remove_zone": {
+        "title": "Zone entfernen",
+        "description": "Achtung: Alle Entitäten der Zone werden gelöscht.",
+        "data": {
+          "zone_id": "Welche Zone möchtest du entfernen?"
+        }
+      }
     }
   },
   "entity": {
     "sensor": {
       "ilczonestatussensor": {
         "state": {
-          "auto_on": "Auto – on",
-          "auto_off": "Auto – off",
-          "manual_on": "Manual – on",
-          "manual_off": "Manual – off",
-          "blocked": "Blocked",
-          "disabled": "Disabled"
+          "auto_on": "Auto – an",
+          "auto_off": "Auto – aus",
+          "manual_on": "Manuell – an",
+          "manual_off": "Manuell – aus",
+          "blocked": "Blockiert",
+          "disabled": "Deaktiviert"
         }
       }
-    }
-  },
-  "services": {
-    "add_zone": {
-      "name": "Add zone",
-      "description": "Adds a new lighting zone."
-    },
-    "remove_zone": {
-      "name": "Remove zone",
-      "description": "Removes a lighting zone."
-    },
-    "update_zone": {
-      "name": "Update zone",
-      "description": "Updates the configuration of a zone."
-    },
-    "set_zone_mode": {
-      "name": "Set zone mode",
-      "description": "Sets the operating mode of a zone."
-    },
-    "turn_on_zone": {
-      "name": "Turn on zone",
-      "description": "Turns on the lights in a zone."
-    },
-    "turn_off_zone": {
-      "name": "Turn off zone",
-      "description": "Turns off the lights in a zone."
-    },
-    "toggle_zone": {
-      "name": "Toggle zone",
-      "description": "Toggles the lights in a zone."
-    },
-    "activate_scene": {
-      "name": "Activate scene",
-      "description": "Activates a scene in a zone."
-    },
-    "set_system_mode": {
-      "name": "Set system mode",
-      "description": "Sets the global operating mode."
-    },
-    "reload": {
-      "name": "Reload",
-      "description": "Reloads the integration."
-    },
-    "export_config": {
-      "name": "Export config",
-      "description": "Exports the configuration of all zones."
     }
   }
 }

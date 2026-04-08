@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Set up Intelligent Light Control",
-        "description": "Enter a name for this instance. Zones are managed via services afterwards.",
+        "description": "Enter a name for this instance. Zones are managed via the configuration options afterwards.",
         "data": {
           "name": "Name"
         }
@@ -11,6 +11,110 @@
     },
     "abort": {
       "already_configured": "This instance is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Intelligent Light Control",
+        "menu_options": {
+          "add_zone": "Add zone",
+          "edit_zone": "Edit zone",
+          "remove_zone": "Remove zone",
+          "global_settings": "Global settings"
+        }
+      },
+      "global_settings": {
+        "title": "Global Settings",
+        "data": {
+          "system_mode": "System mode"
+        }
+      },
+      "add_zone": {
+        "title": "Add Zone – Basics",
+        "description": "Step 1 of 2: Basic zone configuration",
+        "data": {
+          "name": "Zone name",
+          "lights": "Lights",
+          "motion_sensors": "Motion sensors",
+          "no_motion_wait": "Wait time after last motion (seconds)",
+          "manual_override_duration": "Manual override duration (seconds, 0 = unlimited)"
+        }
+      },
+      "add_zone_scenes": {
+        "title": "Add Zone – Scenes & Controls",
+        "description": "Step 2 of 2: Time-of-day scenes, switches, buttons and advanced options",
+        "data": {
+          "scene_morning": "Morning scene",
+          "time_scene_morning": "Morning start time",
+          "scene_day": "Day scene",
+          "time_scene_day": "Day start time",
+          "scene_evening": "Evening scene",
+          "time_scene_evening": "Evening start time",
+          "scene_night": "Night scene",
+          "time_scene_night": "Night start time",
+          "scene_ambient": "Ambient scene (on no motion)",
+          "time_scene_ambient_start": "Ambient time window start",
+          "time_scene_ambient_end": "Ambient time window end",
+          "scene_no_motion": "Default no-motion scene",
+          "sun_elevation_check": "Sun elevation limit (°, empty = always active)",
+          "automation_blocker": "Automation blocker entity",
+          "automation_blocker_state": "Blocker active when state is",
+          "no_motion_blocker": "No-motion blocker entity",
+          "no_motion_blocker_state": "No-motion blocker active when state is",
+          "switches": "Switches (toggle switches)",
+          "buttons": "Buttons (momentary switches)"
+        }
+      },
+      "edit_zone": {
+        "title": "Edit Zone – Select",
+        "data": {
+          "zone_id": "Which zone do you want to edit?"
+        }
+      },
+      "edit_zone_basic": {
+        "title": "Edit Zone – Basics",
+        "description": "Step 1 of 2: Basic configuration",
+        "data": {
+          "name": "Zone name",
+          "lights": "Lights",
+          "motion_sensors": "Motion sensors",
+          "no_motion_wait": "Wait time after last motion (seconds)",
+          "manual_override_duration": "Manual override duration (seconds, 0 = unlimited)"
+        }
+      },
+      "edit_zone_scenes": {
+        "title": "Edit Zone – Scenes & Controls",
+        "description": "Step 2 of 2: Time-of-day scenes, switches, buttons and advanced options",
+        "data": {
+          "scene_morning": "Morning scene",
+          "time_scene_morning": "Morning start time",
+          "scene_day": "Day scene",
+          "time_scene_day": "Day start time",
+          "scene_evening": "Evening scene",
+          "time_scene_evening": "Evening start time",
+          "scene_night": "Night scene",
+          "time_scene_night": "Night start time",
+          "scene_ambient": "Ambient scene (on no motion)",
+          "time_scene_ambient_start": "Ambient time window start",
+          "time_scene_ambient_end": "Ambient time window end",
+          "scene_no_motion": "Default no-motion scene",
+          "sun_elevation_check": "Sun elevation limit (°, empty = always active)",
+          "automation_blocker": "Automation blocker entity",
+          "automation_blocker_state": "Blocker active when state is",
+          "no_motion_blocker": "No-motion blocker entity",
+          "no_motion_blocker_state": "No-motion blocker active when state is",
+          "switches": "Switches (toggle switches)",
+          "buttons": "Buttons (momentary switches)"
+        }
+      },
+      "remove_zone": {
+        "title": "Remove Zone",
+        "description": "Warning: All entities of this zone will be deleted.",
+        "data": {
+          "zone_id": "Which zone do you want to remove?"
+        }
+      }
     }
   },
   "entity": {
@@ -25,52 +129,6 @@
           "disabled": "Disabled"
         }
       }
-    }
-  },
-  "services": {
-    "add_zone": {
-      "name": "Add zone",
-      "description": "Adds a new lighting zone."
-    },
-    "remove_zone": {
-      "name": "Remove zone",
-      "description": "Removes a lighting zone."
-    },
-    "update_zone": {
-      "name": "Update zone",
-      "description": "Updates the configuration of a zone."
-    },
-    "set_zone_mode": {
-      "name": "Set zone mode",
-      "description": "Sets the operating mode of a zone."
-    },
-    "turn_on_zone": {
-      "name": "Turn on zone",
-      "description": "Turns on the lights in a zone."
-    },
-    "turn_off_zone": {
-      "name": "Turn off zone",
-      "description": "Turns off the lights in a zone."
-    },
-    "toggle_zone": {
-      "name": "Toggle zone",
-      "description": "Toggles the lights in a zone."
-    },
-    "activate_scene": {
-      "name": "Activate scene",
-      "description": "Activates a scene in a zone."
-    },
-    "set_system_mode": {
-      "name": "Set system mode",
-      "description": "Sets the global operating mode."
-    },
-    "reload": {
-      "name": "Reload",
-      "description": "Reloads the integration."
-    },
-    "export_config": {
-      "name": "Export config",
-      "description": "Exports the configuration of all zones."
     }
   }
 }
