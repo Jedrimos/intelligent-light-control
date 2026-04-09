@@ -363,9 +363,10 @@ class ILCPanel extends HTMLElement {
   async _getEntryId() {
     if (this._entryId) return this._entryId;
     try {
-      const entries = await this._hass.callWS({ type: "config_entries/get", domain: ILC_DOMAIN });
-      if (entries && entries.length > 0) {
-        this._entryId = entries[0].entry_id;
+      const entries = await this._hass.callApi("GET", "config/config_entries/entry");
+      const match = Array.isArray(entries) && entries.find(e => e.domain === ILC_DOMAIN);
+      if (match) {
+        this._entryId = match.entry_id;
         return this._entryId;
       }
     } catch (e) {
@@ -374,16 +375,13 @@ class ILCPanel extends HTMLElement {
     return null;
   }
 
-  async _navigate(path) {
+  _navigate(path) {
     history.pushState(null, "", path);
     window.dispatchEvent(new CustomEvent("location-changed", { detail: { replace: false } }));
   }
 
-  async _openOptions() {
-    const entryId = await this._getEntryId();
-    if (entryId) {
-      this._navigate(`/config/integrations/integration/${ILC_DOMAIN}`);
-    }
+  _openOptions() {
+    this._navigate(`/config/integrations/integration/${ILC_DOMAIN}`);
   }
 
   async _call(service, data) {
