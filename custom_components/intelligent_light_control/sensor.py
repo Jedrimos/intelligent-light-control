@@ -80,6 +80,13 @@ class ILCZoneStatusSensor(CoordinatorEntity, SensorEntity):
             return self.coordinator.data.get(self.zone_id, {})
         return {}
 
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        if self.zone_id not in self.coordinator.zones:
+            self.hass.async_create_task(self.async_remove(force_remove=True))
+            return
+        super()._handle_coordinator_update()
+
     @property
     def unique_id(self) -> str:
         return f"{self._entry.entry_id}_{self.zone_id}_status"

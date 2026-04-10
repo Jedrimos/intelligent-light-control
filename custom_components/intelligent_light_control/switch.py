@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from homeassistant.components.switch import SwitchEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.entity import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -53,6 +53,13 @@ class _ILCZoneSwitch(CoordinatorEntity, SwitchEntity):
         if self.coordinator.data:
             return self.coordinator.data.get(self.zone_id, {})
         return {}
+
+    @callback
+    def _handle_coordinator_update(self) -> None:
+        if self.zone_id not in self.coordinator.zones:
+            self.hass.async_create_task(self.async_remove(force_remove=True))
+            return
+        super()._handle_coordinator_update()
 
     @property
     def device_info(self) -> DeviceInfo:

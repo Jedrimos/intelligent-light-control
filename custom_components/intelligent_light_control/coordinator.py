@@ -73,7 +73,7 @@ class ILCCoordinator(DataUpdateCoordinator):
 
         await self._create_zone(zone_id, config)
         await self._persist_zones()
-        self.async_update_listeners()
+        self.async_notify_zones_updated()
         return zone_id
 
     async def async_remove_zone(self, zone_id: str) -> None:
@@ -83,7 +83,7 @@ class ILCCoordinator(DataUpdateCoordinator):
             raise ValueError(f"Zone {zone_id!r} not found")
         await zone.async_unload()
         await self._persist_zones()
-        self.async_update_listeners()
+        self.async_notify_zones_updated()
 
     async def async_update_zone(self, zone_id: str, config: dict[str, Any]) -> None:
         """Update zone configuration."""
@@ -96,7 +96,7 @@ class ILCCoordinator(DataUpdateCoordinator):
         zone.update_config(config)
         await zone.async_setup()
         await self._persist_zones()
-        self.async_update_listeners()
+        self.async_notify_zones_updated()
 
     # ------------------------------------------------------------------
     # Zone access helpers
